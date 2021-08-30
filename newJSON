@@ -1,0 +1,1 @@
+{"clients":[{"balance":500,"username":"jim"}],"stock":[{"quantity":3,"maxQuantity":100,"price":5,"name":"MILK","category":"FOOD"},{"quantity":6,"maxQuantity":200,"price":4,"name":"BREAD","category":"FOOD"},{"quantity":20,"maxQuantity":100,"price":100,"name":"PANTS","category":"CLOTHES"},{"quantity":10,"maxQuantity":100,"price":7,"name":"SOCKS","category":"CLOTHES"}]}

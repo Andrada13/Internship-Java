@@ -1,0 +1,113 @@
+[2021-07-26 17:29:26, 888] REMOVE PRODUCT MILK
+[2021-07-26 17:29:26, 893] Cannot remove MILK because quantity is not zero. Quantity is 3
+[2021-07-26 17:48:18, 737] PRINT CATEGORIES
+[2021-07-26 17:49:23, 755] PRINT PRODUCTS CATEGORY FOOD
+[2021-07-26 17:49:23, 759] 1 MILK 3 5
+[2021-07-26 17:49:23, 759] 2 BREAD 6 4
+[2021-07-26 17:49:39, 168] PRINT PRODUCTS ALL
+[2021-07-26 17:49:39, 168] 1 MILK 3 FOOD 5
+[2021-07-26 17:49:39, 168] 2 BREAD 6 FOOD 4
+[2021-07-26 17:49:39, 168] 3 PANTS 20 CLOTHES 100
+[2021-07-26 17:49:39, 168] 4 SOCKS 10 CLOTHES 7
+[2021-07-26 17:51:26, 825] PRINT CATEGORIES
+[2021-07-26 17:51:26, 830] PRINT CATEGORIES
+[2021-07-26 17:51:26, 831] PRINT CATEGORIES
+[2021-07-26 17:51:26, 831] PRINT CATEGORIES
+[2021-07-26 17:51:26, 832] PRINT CATEGORIES
+[2021-07-26 18:26:02, 606] PRINT CATEGORIES
+[2021-07-26 18:26:02, 613] CLOTHES,FOOD
+[2021-07-26 18:30:07, 046] PRINT CATEGORIES
+[2021-07-26 18:30:07, 051] CLOTHES,FOOD
+[2021-07-27 13:43:17, 568] PRINT PRODUCTS MILK
+[2021-07-27 13:43:17, 572] MILK 3 5
+[2021-07-27 14:26:32, 070] BUY MILK 2 FOR jim
+[2021-07-27 14:26:32, 076] The product MILK is no longer in stock or your balance is too low.
+[2021-07-27 14:26:42, 278] REMOVE PRODUCT MILK
+[2021-07-27 14:26:42, 278] Product removed.
+[2021-07-27 16:04:52, 996] PRINT PRODUCTS ALL
+[2021-07-27 16:04:53, 001] 1 MILK 3 FOOD 5
+[2021-07-27 16:04:53, 001] 2 BREAD 6 FOOD 4
+[2021-07-27 16:04:53, 001] 3 PANTS 20 CLOTHES 100
+[2021-07-27 16:04:53, 001] 4 SOCKS 10 CLOTHES 7
+[2021-07-27 16:32:51, 830] HELP
+[2021-07-27 16:32:51, 835] PRINT PRODUCTS CATEGORY ${CATEGORY_NAME} - Show information about products form a given category 
+PRINT PRODUCTS ALL - Show information about all products 
+PRINT PRODUCTS ${PRODUCTS_NAME} - Show information about specific product 
+PRINT CATEGORIES - Show all categories of products 
+BUY ${PRODUCT} ${QUANTITY} FOR ${USERNAME} - Buy an amount of a specific product for given user 
+REPLENISH ${PRODUCT} ${QUANTITY} - Replenish the stock of given product with given amount 
+ADD NEW CATEGORY ${NAME} - Add a new category of products 
+ADD NEW PRODUCT ${NAME} ${CATEGORY} ${QUANTITY} ${PRICE} - Add new product to the stock 
+REMOVE PRODUCT ${NAME} - Remove specific product from the stock if its quantity is empty 
+PRINT DISPLAY_MODE - Print the current display mode 
+SWITCH DISPLAY_MODE CONSOLE sau FILE ${CALE_CATRE_FISIER} - Change the display mode
+[2021-07-27 16:35:15, 021] HELP
+[2021-07-27 16:35:15, 026] PRINT PRODUCTS CATEGORY ${CATEGORY_NAME} - Show information about products form a given category 
+
+[2021-07-27 16:35:15, 026] PRINT PRODUCTS ALL - Show information about all products 
+
+[2021-07-27 16:39:02, 555] HELP
+[2021-07-27 16:39:02, 561] PRINT PRODUCTS CATEGORY ${CATEGORY_NAME} - Show information about products form a given category
+[2021-07-27 16:39:02, 561] PRINT PRODUCTS ALL - Show information about all products
+[2021-07-27 16:39:02, 561] PRINT PRODUCTS ${PRODUCTS_NAME} - Show information about specific product
+[2021-07-27 16:39:02, 561] PRINT CATEGORIES - Show all categories of products
+[2021-07-27 16:39:02, 561] BUY ${PRODUCT} ${QUANTITY} FOR ${USERNAME} - Buy an amount of a specific product for given user
+[2021-07-27 16:39:02, 561] REPLENISH ${PRODUCT} ${QUANTITY} - Replenish the stock of given product with given amount
+[2021-07-27 16:39:02, 561] ADD NEW CATEGORY ${NAME} - Add a new category of products
+[2021-07-27 16:39:02, 561] ADD NEW PRODUCT ${NAME} ${CATEGORY} ${QUANTITY} ${PRICE} - Add new product to the stock
+[2021-07-27 16:39:02, 561] REMOVE PRODUCT ${NAME} - Remove specific product from the stock if its quantity is empty
+[2021-07-27 16:39:02, 562] PRINT DISPLAY_MODE - Print the current display mode
+[2021-07-27 16:39:02, 562] SWITCH DISPLAY_MODE CONSOLE sau FILE ${CALE_CATRE_FISIER} - Change the display mode
+[2021-07-27 16:39:32, 261] SWITCH DISPLAY_MODE CONSOLE
+[2021-07-27 19:51:43, 622] HELP
+[2021-07-27 19:51:43, 626] PRINT PRODUCTS CATEGORY ${CATEGORY_NAME} - Show information about products form a given category
+[2021-07-27 19:51:43, 627] PRINT PRODUCTS ALL - Show information about all products
+[2021-07-27 19:51:43, 627] PRINT PRODUCTS ${PRODUCTS_NAME} - Show information about specific product
+[2021-07-27 19:51:43, 627] PRINT CATEGORIES - Show all categories of products
+[2021-07-27 19:51:43, 627] BUY ${PRODUCT} ${QUANTITY} FOR ${USERNAME} - Buy an amount of a specific product for given user
+[2021-07-27 19:51:43, 627] REPLENISH ${PRODUCT} ${QUANTITY} - Replenish the stock of given product with given amount
+[2021-07-27 19:51:43, 627] ADD NEW CATEGORY ${NAME} - Add a new category of products
+[2021-07-27 19:51:43, 627] ADD NEW PRODUCT ${NAME} ${CATEGORY} ${QUANTITY} ${PRICE} - Add new product to the stock
+[2021-07-27 19:51:43, 627] REMOVE PRODUCT ${NAME} - Remove specific product from the stock if its quantity is empty
+[2021-07-27 19:51:43, 627] PRINT DISPLAY_MODE - Print the current display mode
+[2021-07-27 19:51:43, 627] SWITCH DISPLAY_MODE CONSOLE sau FILE ${CALE_CATRE_FISIER} - Change the display mode
+[2021-07-27 19:55:51, 629] HELP
+[2021-07-27 19:55:51, 634] type HELP to show available actions
+[2021-07-27 19:55:51, 635] HELP
+[2021-07-27 19:55:51, 635] PRINT PRODUCTS CATEGORY ${CATEGORY_NAME} - Show information about products form a given category
+[2021-07-27 19:55:51, 635] PRINT PRODUCTS ALL - Show information about all products
+[2021-07-27 19:55:51, 635] PRINT PRODUCTS ${PRODUCTS_NAME} - Show information about specific product
+[2021-07-27 19:55:51, 635] PRINT CATEGORIES - Show all categories of products
+[2021-07-27 19:55:51, 636] BUY ${PRODUCT} ${QUANTITY} FOR ${USERNAME} - Buy an amount of a specific product for given user
+[2021-07-27 19:55:51, 636] REPLENISH ${PRODUCT} ${QUANTITY} - Replenish the stock of given product with given amount
+[2021-07-27 19:55:51, 636] ADD NEW CATEGORY ${NAME} - Add a new category of products
+[2021-07-27 19:55:51, 636] ADD NEW PRODUCT ${NAME} ${CATEGORY} ${QUANTITY} ${PRICE} - Add new product to the stock
+[2021-07-27 19:55:51, 636] REMOVE PRODUCT ${NAME} - Remove specific product from the stock if its quantity is empty
+[2021-07-27 19:55:51, 636] PRINT DISPLAY_MODE - Print the current display mode
+[2021-07-27 19:55:51, 636] SWITCH DISPLAY_MODE CONSOLE sau FILE ${CALE_CATRE_FISIER} - Change the display mode
+[2021-07-27 20:19:15, 680] HELP
+[2021-07-27 20:19:15, 684] PRINT PRODUCTS CATEGORY ${CATEGORY_NAME} - Show information about products form a given category
+[2021-07-27 20:19:15, 684] PRINT PRODUCTS ALL - Show information about all products
+[2021-07-27 20:19:15, 684] PRINT PRODUCTS ${PRODUCTS_NAME} - Show information about specific product
+[2021-07-27 20:19:15, 684] PRINT CATEGORIES - Show all categories of products
+[2021-07-27 20:19:15, 685] BUY ${PRODUCT} ${QUANTITY} FOR ${USERNAME} - Buy an amount of a specific product for given user
+[2021-07-27 20:19:15, 685] REPLENISH ${PRODUCT} ${QUANTITY} - Replenish the stock of given product with given amount
+[2021-07-27 20:19:15, 685] ADD NEW CATEGORY ${NAME} - Add a new category of products
+[2021-07-27 20:19:15, 685] ADD NEW PRODUCT ${NAME} ${CATEGORY} ${QUANTITY} ${PRICE} - Add new product to the stock
+[2021-07-27 20:19:15, 685] REMOVE PRODUCT ${NAME} - Remove specific product from the stock if its quantity is empty
+[2021-07-27 20:19:15, 685] PRINT DISPLAY_MODE - Print the current display mode
+[2021-07-27 20:19:15, 685] SWITCH DISPLAY_MODE CONSOLE sau FILE ${CALE_CATRE_FISIER} - Change the display mode
+[2021-07-27 20:24:46, 479] HELP
+[2021-07-27 20:24:46, 484] PRINT PRODUCTS CATEGORY ${CATEGORY_NAME} - Show information about products form a given category
+[2021-07-27 20:24:46, 484] PRINT PRODUCTS ALL - Show information about all products
+[2021-07-27 20:24:46, 484] PRINT PRODUCTS ${PRODUCTS_NAME} - Show information about specific product
+[2021-07-27 20:24:46, 484] PRINT CATEGORIES - Show all categories of products
+[2021-07-27 20:24:46, 484] BUY ${PRODUCT} ${QUANTITY} FOR ${USERNAME} - Buy an amount of a specific product for given user
+[2021-07-27 20:24:46, 485] REPLENISH ${PRODUCT} ${QUANTITY} - Replenish the stock of given product with given amount
+[2021-07-27 20:24:46, 485] ADD NEW CATEGORY ${NAME} - Add a new category of products
+[2021-07-27 20:24:46, 485] ADD NEW PRODUCT ${NAME} ${CATEGORY} ${QUANTITY} ${PRICE} - Add new product to the stock
+[2021-07-27 20:24:46, 485] REMOVE PRODUCT ${NAME} - Remove specific product from the stock if its quantity is empty
+[2021-07-27 20:24:46, 485] PRINT DISPLAY_MODE - Print the current display mode
+[2021-07-27 20:24:46, 485] SWITCH DISPLAY_MODE CONSOLE sau FILE ${CALE_CATRE_FISIER} - Change the display mode
+[2021-07-31 13:33:55, 670] EXPORT " "
+[2021-07-31 13:35:03, 790] EXPORT MESSAGE
