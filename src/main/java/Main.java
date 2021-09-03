@@ -14,11 +14,13 @@ import org.json.simple.parser.ParseException;
 public class Main {
 	public static void main(String[] args) throws SQLException {
 
-		//ConnectDB db = new ConnectDB();
+	//	ConnectDB db = new ConnectDB();
 		 //db.createConnection();
-
+	
 		// JSONParser jsonParser = new JSONParser();
+	
 		Command command = new Command();
+		
 		try (Scanner scanner = new Scanner(System.in)) {
 			String input;
 			/*
@@ -28,7 +30,8 @@ public class Main {
 			 * (IOException | ParseException e) { e.printStackTrace(); }
 			 */
 			System.out.println("type HELP to show available actions");
-			//command.createCategoriesList();
+			command.createCategoriesList();
+			
 			while (!(input = scanner.nextLine()).equals("STOP")) {
 				command.setCommand(input.split(" "));
 				command.readCommand();

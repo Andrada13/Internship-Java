@@ -27,6 +27,7 @@ public class Command {
 
 	ConnectDB db = new ConnectDB();
 
+	
 	public String[] getCommand() {
 		return command;
 	}
@@ -49,9 +50,9 @@ public class Command {
 	 * }
 	 */
 
+	
 	public void readCommand() throws SQLException {
 		messages = new ArrayList<>();
-		db.createConnection();
 
 		if (command.length == 1 && command[0].equals("HELP")) {
 			help();
@@ -384,105 +385,52 @@ public class Command {
 	 * categoryIn + " ' was found."); } printer.print(messages, command); }
 	 */
 
-	private List<Product> printCategory(String categoryIn) throws SQLException {
+	private void printCategory(String categoryIn) throws SQLException {
 		int j = 1;
 		messages = new ArrayList<>();
 
-		String query = "SELECT *FROM product INNER JOIN categories ON product.CategoryID=categories.CategoryID";
-		db.result = db.statement.executeQuery(query);
+		List<Product> products = db.getProductsByCategory(categoryIn);
 		
-		List<Product> products = new ArrayList<Product>();
-		Product product = new Product();
-		Categories category = new Categories();
 
-		while (db.result.next()) {
-			category.setCategory(db.result.getString("category"));
-			if (category.getCategory().equals(categoryIn)) {
-				product.setName(db.result.getString("namePr"));
-				product.setQuantity(db.result.getLong("quantity"));
-				product.setPrice(db.result.getLong("price"));
-				products.add(product);
-
-				messages.add(j + " " + product.getName() + " " + product.getQuantity() + " " + product.getPrice());
-				j++;
-
-			}
+		for (Product product : products) {
+			if (product.getCategory().equals(categoryIn)) {
+			messages.add(j + " " + product.getName() + " " + product.getQuantity() + " " + product.getPrice());
+			j++;
+		}
+		}
+		if (messages.isEmpty()) {
+			messages.add("No category named ' " + categoryIn + " ' was found.");
 		}
 		printer.print(messages, command);
-		return products;
+		
 	}
 
-	// Product product = new Product();
-
-	// List<ResultSet> arrayList = new ArrayList<>(Arrays.asList(db.getResult()));
-	// for(ResultSet val : arrayList){
-	// System.out.print(val + " ");
-	// }
-
-	// return arrayList;
-	// db.executeQuery();
-
-	// while (db.getResult().next()) {
-	// if (db.getResult().getString("category").equals(categoryIn)) {
-	// messages.add(j + " " + db.getResult().getString("namePr") + " " +
-	// db.getResult().getString("quantity")
-	// + " " + db.getResult().getString("price"));
-
-	// j++;
-	// }
-	// }
-	// if (messages.isEmpty()) {
-	// messages.add("No category named ' " + categoryIn + " ' was found.");
-
 	// comanda 2
-	private List<Product> printAll() throws SQLException {
+	private void printAll() throws SQLException {
 		int j = 1;
 		messages = new ArrayList<>();
-		String query = "SELECT *FROM product INNER JOIN categories ON product.CategoryID=categories.CategoryID";
-//?????
-		// db.createConnection();
 
-		db.result = db.statement.executeQuery(query);
-		List<Product> list = new ArrayList<Product>();
+		List<Product> products = db.getAllProducts();
 
-		while (db.result.next()) {
-			Product product = new Product();
-			Categories category = new Categories();
-
-			product.setName(db.result.getString("namePr"));
-			product.setQuantity(db.result.getLong("quantity"));
-			category.setCategory(db.result.getString("category"));
-			product.setPrice(db.result.getLong("price"));
-			list.add(product);
-
-			messages.add(j + " " + product.getName() + " " + product.getQuantity() + " " + category.getCategory() + " "
+		for (Product product : products) {
+			messages.add(j + " " + product.getName() + " " + product.getQuantity() + " " + product.getCategory() + " "
 					+ product.getPrice());
+
 			j++;
-
 		}
-		printer.print(messages, command);
 
-		return list;
+		printer.print(messages, command);
 
 	}
 
 //comanda 3
 	private void productsName(String nameIn) throws SQLException {
 		messages = new ArrayList<>();
-		// String query = String.format(
-		// "SELECT *FROM product INNER JOIN categories ON
-		// product.CategoryID=categories.CategoryID WHERE product.name='%s'",
-		// nameIn);
+		
 
-		db.createConnection("SELECT *FROM product INNER JOIN categories ON product.CategoryID=categories.CategoryID");
-		// db.setResult(db.getStatement().executeQuery(query));
+		Product products = db.getProductsByName(nameIn);
+			messages.add(products.getName() + " " + products.getQuantity() + " " + products.getPrice());
 
-		while (db.getResult().next()) {
-			if (db.getResult().getString("namePr").equals(nameIn)) {
-				messages.add(db.getResult().getString("namePr") + " " + db.getResult().getString("quantity") + " "
-						+ db.getResult().getString("price"));
-			}
-		}
 		if (messages.isEmpty()) {
 			messages.add("No product named ' " + nameIn + " ' was found.");
 		}
@@ -492,17 +440,11 @@ public class Command {
 //comanda 4 
 	private void printCategories() throws SQLException {
 		messages = new ArrayList<>();
-		HashSet<Object> list = new HashSet<>();
-		// String query = "select *from categories";
+		//HashSet<Object> list = new HashSet<>();
 
-		db.createConnection("select *from categories");
-		// db.setResult(db.getStatement().executeQuery(query));
-
-		while (db.getResult().next()) {
-			list.add(db.getResult().getString("category"));
-
-		}
-		Iterator<Object> it = list.iterator();
+		List<String> list = db.getProductsByCategory();
+		
+		Iterator<String> it = list.iterator();
 		String s = "";
 		while (it.hasNext()) {
 			s = s + it.next();
@@ -521,34 +463,17 @@ public class Command {
 
 	}
 
+
 //comanda 5
 	private void buy(String prod, String quantityIn, String username) throws SQLException {
 		messages = new ArrayList<>();
 
-		// String queryProduct = "select *from product";
-		// String queryClients = "select *from clients";
-		String updateQueryProduct = "UPDATE product,clients" + "SET quantity = ? and balance  = ? "
-				+ " WHERE name = ? and username  = ?";
-		// String updateQueryProduct = "UPDATE product " + "SET quantity = ? " + "WHERE
-		// name = ?";
-		// String updateQueryClients = "UPDATE clients " + "SET balance = ? "
-		// + "WHERE username = ?";
-
-		db.createConnection();
-		// db.executeQuery();
-
-		// db.executeQueryProducts();
-		// db.executeQueryClients();
-		// db.setResult(db.getStatement().executeQuery(queryProduct));
-		// db.setResultClients(db.getStatementClients().executeQuery(queryClients));
-		PreparedStatement psUpdateProduct = db.getConn().prepareStatement(updateQueryProduct);
-		PreparedStatement psUpdateClients = db.getConn().prepareStatement(updateQueryClients);
-
-		// db.getConn().setAutoCommit(false);
-
-		while (db.getResult().next()) {
-			if (db.getResult().getString("name").equals(prod)) {
-				while (db.getResultClients().next()) {
+		List<Product> products = db.getAllProducts();
+		List<User> users = db.getUsers();
+		
+		for (Product product : products) {
+			if (product.getName().equals(prod)) {
+				for (User user : users) {
 					int quantityInp;
 					try {
 						quantityInp = Integer.parseInt(quantityIn);
@@ -562,53 +487,37 @@ public class Command {
 						printer.print(messages, command);
 						return;
 					} else {
-						if (db.getResultClients().getString("username").equals(username)) {
+						if (user.getUsername().equals(username)) {
 
-							long totalPrice = Integer.parseInt(db.getResult().getString("price")) * quantityInp;
+							
+							long totalPrice = product.getPrice() * quantityInp;
 
-							if (Integer.parseInt(db.getResult().getString("quantity")) == 0) {
+							if (product.getQuantity() == 0) {
 								messages.add(
-										"The product " + db.getResult().getString("name") + " is no longer in stock.");
+										"The product " + product.getName() + " is no longer in stock.");
 								printer.print(messages, command);
 								return;
 							}
-							if (!(Integer.parseInt(db.getResultClients().getString("balance")) > totalPrice)) {
+							if (!(user.getBalance() > totalPrice)) {
 								messages.add("Your balance is too low.");
 								printer.print(messages, command);
 								return;
 							}
-							if (Integer.parseInt(db.getResult().getString("quantity")) < quantityInp) {
-								messages.add("User " + db.getResultClients().getString("username") + " cannot buy "
-										+ quantityIn + " " + db.getResult().getString("name")
-										+ " because there is only " + db.getResult().getString("quantity") + " "
-										+ db.getResult().getString("name") + " left. ");
+							if (product.getQuantity() < quantityInp) {
+								messages.add("User " + user.getUsername() + " cannot buy "
+										+ quantityIn + " " + product.getName()
+										+ " because there is only " + product.getQuantity() + " "
+										+ product.getName() + " left. ");
 								printer.print(messages, command);
 								return;
 							}
 
-							long newQuantity = Integer.parseInt(db.getResult().getString("quantity")) - quantityInp;
-							long newBalance = Integer.parseInt(db.getResultClients().getString("balance")) - totalPrice;
+							
+						db.updateBuy(prod, quantityInp,username);
 
-							psUpdateProduct.setLong(1, newQuantity);
-							psUpdateProduct.setString(2, prod);
-							psUpdateProduct.executeUpdate();
-
-							psUpdateClients.setLong(1, newBalance);
-							psUpdateClients.setString(2, username);
-							psUpdateClients.executeUpdate();
-
-							db.getConn().commit();
-
-							// pstmt.executeUpdate();
-
-							// psUpdateProduct.addBatch();
-							// psUpdateClients.addBatch();
-							// psUpdateProduct.executeBatch();
-							// psUpdateClients.executeBatch();
-							// db.getConn().commit();
-
-							messages.add("User " + db.getResultClients().getString("username") + " has bought "
-									+ quantityIn + " " + db.getResult().getString("name"));
+					
+							messages.add("User " + user.getUsername() + " has bought "
+									+ quantityIn + " " + product.getName());
 							printer.print(messages, command);
 							return;
 						}
@@ -624,25 +533,21 @@ public class Command {
 		}
 		messages.add("Product not found.");
 		printer.print(messages, command);
-
+		db.conn.close();
 	}
 
 	// comanda 6
 	private void replenish(String prod, String quantityRe) throws SQLException {
 		messages = new ArrayList<>();
 
-		String sqlUpdate = "UPDATE product " + "SET quantity = ? " + "WHERE namePr = ?";
-		// String queryProduct = "select *from product";
+		List<Product> products = db.getAllProducts();
 
-		db.createConnection("select *from product");
-		// db.executeQueryProducts();
-		// db.setResult(db.getStatement().executeQuery(queryProduct));
-		PreparedStatement psUpdate = db.getConn().prepareStatement(sqlUpdate);
-
-		while (db.getResult().next()) {
+		
+		for (Product product : products) {
 			int quantityInp;
 			try {
 				quantityInp = Integer.parseInt(quantityRe);
+			
 			} catch (NumberFormatException nfe) {
 				messages.add("Error ! The second argument must be integer.");
 				printer.print(messages, command);
@@ -653,43 +558,38 @@ public class Command {
 				printer.print(messages, command);
 				return;
 			}
-			if (db.getResult().getString("namePr").equals(prod)) {
-				long newQuantity = Integer.parseInt(db.getResult().getString("quantity")) + quantityInp;
-				if (db.getResult().getString("quantity") == (db.getResult().getString("maxQuantity"))) {
+			if (product.getName().equals(prod)) {
+				long newQuantity = product.getQuantity() + quantityInp;
+				if (product.getQuantity() == product.getMaxQuantity()) {
 					messages.add("The quantity is already full.");
 					printer.print(messages, command);
 					return;
 
 				}
-				if (newQuantity > Integer.parseInt(db.getResult().getString("maxQuantity"))) {
+				if (newQuantity > product.getMaxQuantity()) {
 					messages.add("The given quantity is bigger than the maximum quantity.");
 					printer.print(messages, command);
-					return;
-				}
+				return;
+			}
 
-				psUpdate.setLong(1, newQuantity);
-				psUpdate.setString(2, prod);
-				psUpdate.executeUpdate();
+				db.replenishQuantity(prod, quantityInp);
 
 				messages.add("Quantity successfully added.");
 				printer.print(messages, command);
 				return;
-			}
-
 		}
-
+		}
 		messages.add("No product named ' " + prod + " ' was found.");
-		printer.print(messages, command);
+	printer.print(messages, command);
 
 	}
 
 	public void createCategoriesList() throws SQLException {
 
-		// String queryCategories = "select *from categories";
-		db.createConnection("select *from categories");
-		// db.setResult(db.getStatement().executeQuery(queryCategories));
-		while (db.getResult().next()) {
-			arrCategories.add(db.getResult().getString("category"));
+		
+		List<String> list = db.getProductsByCategory();
+		for(String category : list) {
+			arrCategories.add(category);
 		}
 
 		System.out.println(arrCategories);
@@ -698,18 +598,12 @@ public class Command {
 	// comanda 7
 	private void addCategory(String newCategory) throws SQLException {
 		messages = new ArrayList<>();
-		// String queryCategories = "select *from categories";
-
-		db.createConnection("select *from categories");
-		// db.setResult(db.getStatement().executeQuery(queryCategories));
-
-		while (db.getResult().next()) {
+	
 			if (arrCategories.add(newCategory)) {
-				String queryInsert = "insert into categories (category) values (?)";
-				PreparedStatement psInsert = db.getConn().prepareStatement(queryInsert);
-				psInsert.setString(1, newCategory);
-				psInsert.executeUpdate();
-				messages.add("Category added.");
+				
+				db.addNewCategory(newCategory);
+				
+				messages.add("Category added. " + newCategory);
 				printer.print(messages, command);
 				return;
 			} else {
@@ -717,27 +611,18 @@ public class Command {
 				printer.print(messages, command);
 				return;
 
-			}
-
+			
 		}
 	}
 
 	// comanda 8
 	private void addProduct(String prodName, String categoryIn, String quantityIn, String priceIn) throws SQLException {
 		messages = new ArrayList<>();
-		// String query = "SELECT *FROM product INNER JOIN categories ON
-		// product.CategoryID=categories.CategoryID";
-		// db.createConnection("SELECT product.namePr FROM product INNER JOIN categories
-		// ON product.CategoryID=categories.CategoryID");
-		db.createConnection("SELECT *FROM product INNER JOIN categories ON product.CategoryID=categories.CategoryID");
-		// db.setResult(db.getStatement().executeQuery(query));
+		
+		List<Product> products = db.getAllProducts();
+		
 
-		db.getConn().setAutoCommit(false);
-
-		String queryInsert = "INSERT INTO product (CategoryID,namePr, quantity, price) VALUES (?,?, ?, ?)";
-		PreparedStatement psInsert = db.getConn().prepareStatement(queryInsert);
-
-		while (db.getResult().next()) {
+		for (Product product : products) {
 			int quantityInp;
 			int priceInp;
 			try {
@@ -756,7 +641,7 @@ public class Command {
 				return;
 			}
 
-			if (db.getResult().getString("namePr").equals(prodName)) {
+			if (product.getName().equals(prodName)) {
 				messages.add("The product already exists.");
 				printer.print(messages, command);
 				return;
@@ -767,19 +652,13 @@ public class Command {
 				return;
 
 			}
-			if (db.getResult().getString("category").equals(categoryIn)) {
-				psInsert.setInt(1, db.getResult().getInt("CategoryID"));
+		//	if (product.getCategory().equals(categoryIn)) {
+			//	psInsert.setInt(1, db.getResult().getInt("CategoryID"));
 
-			}
+			//}
 		}
 
-		psInsert.setString(2, prodName);
-		psInsert.setString(3, quantityIn);
-		psInsert.setString(4, priceIn);
-
-		psInsert.addBatch();
-		psInsert.executeBatch();
-		db.getConn().commit();
+	db.addProducts(prodName, categoryIn, quantityIn, priceIn);
 
 		messages.add(quantityIn + " " + prodName + " " + "have been added to " + categoryIn + " " + "category.");
 		printer.print(messages, command);
@@ -790,45 +669,30 @@ public class Command {
 	public void removeProduct(String prodName) throws NumberFormatException, SQLException {
 		messages = new ArrayList<>();
 
-		// String queryProduct = String.format("select *from product where name='%s'",
-		// prodName);
-		db.createConnection("select *from product");
-		// db.setResult(db.getStatement().executeQuery(queryProduct));
-
-		while (db.getResult().next()) {
-			if (!((Integer.parseInt(db.getResult().getString("quantity")) == 0))) {
-				messages.add("Cannot remove " + db.getResult().getString("namePr") + " "
-						+ "because quantity is not zero. Quantity is " + db.getResult().getString("quantity"));
+		
+		List<Product> products = db.getAllProducts();
+		//Product product = db.getProductsByName(prodName);
+		for (Product product : products) {
+			if (!(product.getQuantity() == 0)) {
+				messages.add("Cannot remove " + product.getName() + " "
+						+ "because quantity is not zero. Quantity is " + product.getQuantity());
 				printer.print(messages, command);
 				return;
 			} else {
-				String queryDelete = "delete from product where name=?";
-				PreparedStatement psDelete = db.getConn().prepareStatement(queryDelete);
-				psDelete.setString(1, prodName);
-				psDelete.executeUpdate();
+				
+				db.remove(prodName);
 				messages.add("Product removed.");
 				printer.print(messages, command);
 				return;
 			}
 
-		}
+	}
 
 		messages.add("No product named ' " + prodName + " ' was found.");
 		printer.print(messages, command);
 	}
 
-	/*
-	 * // comanda 11 private void switchDisplayMode(String newDisplayMode, String
-	 * newPath) { messages = new ArrayList(); printer.print(messages, command);
-	 * printer.setDisplayMode(newDisplayMode); if (newPath != null) {
-	 * printer.setPath(newPath.replace("\"", "")); return; } printer.setPath(null);
-	 * }
-	 * 
-	 * // comanda 10 private void printDisplayMode() { messages = new ArrayList();
-	 * messages.add(printer.getDisplayMode()); printer.print(messages, command);
-	 * 
-	 * }
-	 */
+	
 	// bonus 1
 	private void help() {
 		messages = new ArrayList<>();

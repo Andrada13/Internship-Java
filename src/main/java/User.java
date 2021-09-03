@@ -10,6 +10,10 @@ public class User {
 
 	}
 
+	public User() {
+		// TODO Auto-generated constructor stub
+	}
+
 	public String getUsername() {
 		return username;
 	}
@@ -25,7 +29,7 @@ public class User {
 	public void setBalance(long balance) {
 		this.balance = balance;
 	}
-
+/*
 	public JSONObject getJSONObject() {
 		JSONObject newObj = new JSONObject();
 		newObj.put("username", this.username);
@@ -33,4 +37,5 @@ public class User {
 
 		return newObj;
 	}
+	*/
 }

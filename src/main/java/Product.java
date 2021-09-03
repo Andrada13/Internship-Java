@@ -81,68 +81,78 @@ import com.mysql.cj.xdevapi.Result;
 
 public class Product {
 
-	
-	private String name;
-	private long quantity;
-	private long price;
-	private long maxQuantity;
-	ConnectDB db = new ConnectDB();
+private String category;
+private String name;
+private long quantity;
+private long price;
+private long maxQuantity;
 
-	public Product(ResultSet result) throws SQLException {
-		name = db.result.getString("namePr");
-		quantity = product.getLong("quantity");
-		price = product.getInt("price");
-		maxQuantity = product.getInt("maxQuantity");
-		
-	}
+public Product(JSONObject product) {
+	category = (String) product.get("category");
+	name = (String) product.get("name");
+	quantity = (long) product.get("quantity");
+	price = (long) product.get("price");
+	maxQuantity = (long) product.get("maxQuantity");
+}
 
-	public Product() {
+public Product() {
 
-	}
+}
 
 
-	
-	public String getName() {
-		return name;
-	}
+public String getCategory() {
+	return category;
+}
 
-	public void setName(String name) {
-		this.name = name;
-	}
+public void setCategory(String category) {
+	this.category = category;
+}
 
-	public long getQuantity() {
-		return quantity;
-	}
+public String getName() {
+	return name;
+}
 
-	public void setQuantity(long quantity) {
-		this.quantity = quantity;
-	}
+public void setName(String name) {
+	this.name = name;
+}
 
-	public long getPrice() {
-		return price;
-	}
+public long getQuantity() {
+	return quantity;
+}
 
-	public void setPrice(long price) {
-		this.price = price;
-	}
+public void setQuantity(long quantity) {
+	this.quantity = quantity;
+}
 
-	public long getMaxQuantity() {
-		return maxQuantity;
-	}
 
-	public void setMaxQuantity(long maxQuantity) {
-		this.maxQuantity = maxQuantity;
-	}
+public long getPrice() {
+	return price;
+}
 
-	/*public JSONObject getJSONObject() {
-		JSONObject newObj = new JSONObject();
-		newObj.put("category", this.category);
-		newObj.put("name", this.name);
-		newObj.put("quantity", this.quantity);
-		newObj.put("price", this.price);
-		newObj.put("maxQuantity", this.maxQuantity);
+public void setPrice(long price) {
+	this.price = price;
+}
 
-		return newObj;
-	}
+public long getMaxQuantity() {
+	return maxQuantity;
+}
+
+public void setMaxQuantity(long maxQuantity) {
+	this.maxQuantity = maxQuantity;
+}
+
+/*public JSONObject getJSONObject() {
+	JSONObject newObj = new JSONObject();
+	newObj.put("category", this.category);
+	newObj.put("name", this.name);
+	newObj.put("quantity", this.quantity);
+	newObj.put("price", this.price);
+	newObj.put("maxQuantity", this.maxQuantity);
+
+	return newObj;
+}
 */
 }
+
+
+
