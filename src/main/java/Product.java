@@ -86,6 +86,7 @@ private String name;
 private long quantity;
 private long price;
 private long maxQuantity;
+private int CategoryID;
 
 public Product(JSONObject product) {
 	category = (String) product.get("category");
@@ -99,6 +100,15 @@ public Product() {
 
 }
 
+
+
+public int getCategoryID() {
+	return CategoryID;
+}
+
+public void setCategoryID(int categoryID) {
+	CategoryID = categoryID;
+}
 
 public String getCategory() {
 	return category;

@@ -27,7 +27,6 @@ public class Command {
 
 	ConnectDB db = new ConnectDB();
 
-	
 	public String[] getCommand() {
 		return command;
 	}
@@ -50,7 +49,6 @@ public class Command {
 	 * }
 	 */
 
-	
 	public void readCommand() throws SQLException {
 		messages = new ArrayList<>();
 
@@ -390,19 +388,18 @@ public class Command {
 		messages = new ArrayList<>();
 
 		List<Product> products = db.getProductsByCategory(categoryIn);
-		
 
 		for (Product product : products) {
 			if (product.getCategory().equals(categoryIn)) {
-			messages.add(j + " " + product.getName() + " " + product.getQuantity() + " " + product.getPrice());
-			j++;
-		}
+				messages.add(j + " " + product.getName() + " " + product.getQuantity() + " " + product.getPrice());
+				j++;
+			}
 		}
 		if (messages.isEmpty()) {
 			messages.add("No category named ' " + categoryIn + " ' was found.");
 		}
 		printer.print(messages, command);
-		
+
 	}
 
 	// comanda 2
@@ -426,10 +423,9 @@ public class Command {
 //comanda 3
 	private void productsName(String nameIn) throws SQLException {
 		messages = new ArrayList<>();
-		
 
 		Product products = db.getProductsByName(nameIn);
-			messages.add(products.getName() + " " + products.getQuantity() + " " + products.getPrice());
+		messages.add(products.getName() + " " + products.getQuantity() + " " + products.getPrice());
 
 		if (messages.isEmpty()) {
 			messages.add("No product named ' " + nameIn + " ' was found.");
@@ -440,10 +436,10 @@ public class Command {
 //comanda 4 
 	private void printCategories() throws SQLException {
 		messages = new ArrayList<>();
-		//HashSet<Object> list = new HashSet<>();
+		// HashSet<Object> list = new HashSet<>();
 
 		List<String> list = db.getProductsByCategory();
-		
+
 		Iterator<String> it = list.iterator();
 		String s = "";
 		while (it.hasNext()) {
@@ -463,166 +459,168 @@ public class Command {
 
 	}
 
-
 //comanda 5
 	private void buy(String prod, String quantityIn, String username) throws SQLException {
 		messages = new ArrayList<>();
 
-		List<Product> products = db.getAllProducts();
-		List<User> users = db.getUsers();
-		
-		for (Product product : products) {
-			if (product.getName().equals(prod)) {
-				for (User user : users) {
-					int quantityInp;
-					try {
-						quantityInp = Integer.parseInt(quantityIn);
-					} catch (NumberFormatException nfe) {
-						messages.add("Error ! The number must be integer.");
-						printer.print(messages, command);
-						return;
-					}
-					if (!(Integer.parseInt(quantityIn) > 0)) {
-						messages.add("Quantity must be positive.");
-						printer.print(messages, command);
-						return;
-					} else {
-						if (user.getUsername().equals(username)) {
+		// List<Product> products = db.getAllProducts();
+		// List<User> users = db.getUsers();
 
-							
-							long totalPrice = product.getPrice() * quantityInp;
+		Product product = db.getProductsByName(prod);
+		User user = db.getUserByName(username);
 
-							if (product.getQuantity() == 0) {
-								messages.add(
-										"The product " + product.getName() + " is no longer in stock.");
-								printer.print(messages, command);
-								return;
-							}
-							if (!(user.getBalance() > totalPrice)) {
-								messages.add("Your balance is too low.");
-								printer.print(messages, command);
-								return;
-							}
-							if (product.getQuantity() < quantityInp) {
-								messages.add("User " + user.getUsername() + " cannot buy "
-										+ quantityIn + " " + product.getName()
-										+ " because there is only " + product.getQuantity() + " "
-										+ product.getName() + " left. ");
-								printer.print(messages, command);
-								return;
-							}
-
-							
-						db.updateBuy(prod, quantityInp,username);
-
-					
-							messages.add("User " + user.getUsername() + " has bought "
-									+ quantityIn + " " + product.getName());
-							printer.print(messages, command);
-							return;
-						}
-
-					}
-				}
-
-				messages.add("Client not found.");
+		// for (Product product1 : products) {
+		if (product.getName().equals(prod)) {
+			// System.out.println(product.getName());
+			// for (User user1 : users) {
+			int quantityInp;
+			try {
+				quantityInp = Integer.parseInt(quantityIn);
+			} catch (NumberFormatException nfe) {
+				messages.add("Error ! The number must be integer.");
 				printer.print(messages, command);
 				return;
+			}
+			if (!(Integer.parseInt(quantityIn) > 0)) {
+				messages.add("Quantity must be positive.");
+				printer.print(messages, command);
+				return;
+			} else {
+				if (user.getUsername().equals(username)) {
+
+					long totalPrice = product.getPrice() * quantityInp;
+
+					if (product.getQuantity() == 0) {
+						messages.add("The product " + product.getName() + " is no longer in stock.");
+						printer.print(messages, command);
+						return;
+					}
+					if (!(user.getBalance() > totalPrice)) {
+						messages.add("Your balance is too low.");
+						printer.print(messages, command);
+						return;
+					}
+					if (product.getQuantity() < quantityInp) {
+						messages.add("User " + user.getUsername() + " cannot buy " + quantityIn + " "
+								+ product.getName() + " because there is only " + product.getQuantity() + " "
+								+ product.getName() + " left. ");
+						printer.print(messages, command);
+						return;
+					}
+
+					
+					db.updateBuy(prod, quantityInp, username);
+					
+
+					messages.add("User " + user.getUsername() + " has bought " + quantityIn + " " + product.getName());
+					printer.print(messages, command);
+					return;
+				}
 
 			}
+			// }
+
+			messages.add("Client not found.");
+			printer.print(messages, command);
+			return;
+
 		}
+		// }
 		messages.add("Product not found.");
 		printer.print(messages, command);
 		db.conn.close();
 	}
 
+	////////
 	// comanda 6
+	///problema la nume
 	private void replenish(String prod, String quantityRe) throws SQLException {
 		messages = new ArrayList<>();
 
-		List<Product> products = db.getAllProducts();
+		int quantityInp;
+		try {
+			quantityInp = Integer.parseInt(quantityRe);
 
-		
-		for (Product product : products) {
-			int quantityInp;
-			try {
-				quantityInp = Integer.parseInt(quantityRe);
-			
-			} catch (NumberFormatException nfe) {
-				messages.add("Error ! The second argument must be integer.");
-				printer.print(messages, command);
-				return;
-			}
-			if (quantityInp <= 0) {
-				messages.add("Enter a valid quantity.");
-				printer.print(messages, command);
-				return;
-			}
-			if (product.getName().equals(prod)) {
-				long newQuantity = product.getQuantity() + quantityInp;
-				if (product.getQuantity() == product.getMaxQuantity()) {
-					messages.add("The quantity is already full.");
-					printer.print(messages, command);
-					return;
-
-				}
-				if (newQuantity > product.getMaxQuantity()) {
-					messages.add("The given quantity is bigger than the maximum quantity.");
-					printer.print(messages, command);
-				return;
-			}
-
-				db.replenishQuantity(prod, quantityInp);
-
-				messages.add("Quantity successfully added.");
-				printer.print(messages, command);
-				return;
+		} catch (NumberFormatException nfe) {
+			messages.add("Error ! The second argument must be integer.");
+			printer.print(messages, command);
+			return;
 		}
-		}
-		messages.add("No product named ' " + prod + " ' was found.");
-	printer.print(messages, command);
 
+		if (quantityInp <= 0) {
+			messages.add("Enter a valid quantity.");
+			printer.print(messages, command);
+			return;
+		}
+		Product product = db.getProductsByName(prod);
+		System.out.println(product.getName());
+		if (!(product.getName().equals(prod))) {
+			messages.add("No product named ' " + prod + " ' was found.");
+			printer.print(messages, command);
+		}
+
+		if (product.getQuantity() == product.getMaxQuantity()) {
+			messages.add("The quantity is already full.");
+			printer.print(messages, command);
+			return;
+		}
+
+		long q = db.replenishQuantity(prod, quantityInp);
+
+		if (q > product.getMaxQuantity()) {
+			messages.add("The given quantity is bigger than the maximum quantity.");
+			printer.print(messages, command);
+			return;
+		}
+
+		messages.add("Quantity successfully added.");
+		printer.print(messages, command);
+		return;
 	}
 
+	
+	
 	public void createCategoriesList() throws SQLException {
 
-		
 		List<String> list = db.getProductsByCategory();
-		for(String category : list) {
+		for (String category : list) {
 			arrCategories.add(category);
 		}
 
 		System.out.println(arrCategories);
 	}
 
+	//////
 	// comanda 7
 	private void addCategory(String newCategory) throws SQLException {
 		messages = new ArrayList<>();
-	
-			if (arrCategories.add(newCategory)) {
-				
-				db.addNewCategory(newCategory);
-				
-				messages.add("Category added. " + newCategory);
-				printer.print(messages, command);
-				return;
-			} else {
-				messages.add("Category already exists.");
-				printer.print(messages, command);
-				return;
 
-			
+		if (arrCategories.add(newCategory)) {
+
+			db.addNewCategory(newCategory);
+
+			messages.add("Category added. " + newCategory);
+			printer.print(messages, command);
+			return;
+		} else {
+			messages.add("Category already exists.");
+			printer.print(messages, command);
+			return;
+
 		}
 	}
 
 	// comanda 8
-	private void addProduct(String prodName, String categoryIn, String quantityIn, String priceIn) throws SQLException {
+	private void addProduct(String prod, String categoryIn, String quantityIn, String priceIn) throws SQLException {
 		messages = new ArrayList<>();
-		
-		List<Product> products = db.getAllProducts();
-		
 
-		for (Product product : products) {
+		//List<Product> products = db.getAllProducts();
+
+		 Product product11 = db.getProductsByName(prod);
+		System.out.println(product11.getCategory() +product11.getQuantity());
+
+		//for (Product product : products) {
+
 			int quantityInp;
 			int priceInp;
 			try {
@@ -641,7 +639,7 @@ public class Command {
 				return;
 			}
 
-			if (product.getName().equals(prodName)) {
+			if (product11.getName().equals(prod)) {
 				messages.add("The product already exists.");
 				printer.print(messages, command);
 				return;
@@ -652,47 +650,47 @@ public class Command {
 				return;
 
 			}
-		//	if (product.getCategory().equals(categoryIn)) {
-			//	psInsert.setInt(1, db.getResult().getInt("CategoryID"));
+			// if (product.getCategory().equals(categoryIn)) {
+			// psInsert.setInt(1, db.getResult().getInt("CategoryID"));
 
-			//}
-		}
+			// }
+		//}
 
-	db.addProducts(prodName, categoryIn, quantityIn, priceIn);
+		db.addProducts(prod, categoryIn, quantityIn, priceIn);
 
-		messages.add(quantityIn + " " + prodName + " " + "have been added to " + categoryIn + " " + "category.");
+		messages.add(quantityIn + " " + prod + " " + "have been added to " + categoryIn + " " + "category.");
 		printer.print(messages, command);
 
 	}
 
+	//////
 	// comanda 9
 	public void removeProduct(String prodName) throws NumberFormatException, SQLException {
 		messages = new ArrayList<>();
 
-		
-		List<Product> products = db.getAllProducts();
-		//Product product = db.getProductsByName(prodName);
-		for (Product product : products) {
+		// List<Product> products = db.getAllProducts();
+		Product product = db.getProductsByName(prodName);
+		// for (Product product : products) {
+		if (product.getName().equals(prodName)) {
 			if (!(product.getQuantity() == 0)) {
-				messages.add("Cannot remove " + product.getName() + " "
-						+ "because quantity is not zero. Quantity is " + product.getQuantity());
+				messages.add("Cannot remove " + product.getName() + " " + "because quantity is not zero. Quantity is "
+						+ product.getQuantity());
 				printer.print(messages, command);
 				return;
 			} else {
-				
+
 				db.remove(prodName);
 				messages.add("Product removed.");
 				printer.print(messages, command);
 				return;
 			}
 
-	}
+		}
 
 		messages.add("No product named ' " + prodName + " ' was found.");
 		printer.print(messages, command);
 	}
 
-	
 	// bonus 1
 	private void help() {
 		messages = new ArrayList<>();
