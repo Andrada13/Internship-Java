@@ -43,7 +43,6 @@ public class ConnectDB {
 		try {
 			createConnection();
 			String query = "SELECT *FROM product INNER JOIN categories ON product.CategoryID=categories.CategoryID";
-
 			ResultSet result = statement.executeQuery(query);
 
 			while (result.next()) {
@@ -90,7 +89,6 @@ public class ConnectDB {
 				conn.close();
 			}
 		}
-
 		return products;
 	}
 
@@ -100,11 +98,11 @@ public class ConnectDB {
 		try {
 			createConnection();
 			String query = "SELECT *FROM product INNER JOIN categories ON product.CategoryID=categories.CategoryID";
-
 			ResultSet result = statement.executeQuery(query);
 
-			product= new Product();
+			product = new Product();
 			while (result.next()) {
+
 				if (result.getString("namePr").equals(nameIn)) {
 					product.setName(result.getString("namePr"));
 					product.setCategoryID(result.getInt("CategoryID"));
@@ -112,9 +110,7 @@ public class ConnectDB {
 					product.setPrice(result.getLong("price"));
 					product.setMaxQuantity(result.getLong("maxQuantity"));
 				}
-
 			}
-
 		} finally {
 			if (conn != null) {
 				conn.close();
@@ -129,16 +125,13 @@ public class ConnectDB {
 		try {
 			createConnection();
 			String query = "SELECT *FROM clients";
-
 			ResultSet result = statement.executeQuery(query);
 
 			while (result.next()) {
 				if (result.getString("username").equals(nameUser)) {
 					user.setUsername(result.getString("username"));
 					user.setBalance(result.getLong("balance"));
-
 				}
-
 			}
 
 		} finally {
@@ -151,7 +144,6 @@ public class ConnectDB {
 	}
 
 	public List<String> getProductsByCategory() throws SQLException {
-
 		List<String> categories = new ArrayList<String>();
 
 		try {
@@ -161,6 +153,7 @@ public class ConnectDB {
 
 			while (result.next()) {
 				categories.add(result.getString("category"));
+				categories.add(result.getString("CategoryID"));
 			}
 
 		} finally {
@@ -176,9 +169,7 @@ public class ConnectDB {
 		List<User> clients = new ArrayList<User>();
 		try {
 			createConnection();
-
 			String queryClients = "select *from clients";
-
 			ResultSet result = statement.executeQuery(queryClients);
 
 			while (result.next()) {
@@ -200,24 +191,18 @@ public class ConnectDB {
 	}
 
 	public long decreaseQuantity(int quantityInp, String name) throws SQLException {
-
 		Product product = getProductsByName(name);
 
 		long newQuantity = 0;
 
 		if (product.getQuantity() > quantityInp) {
 			newQuantity = product.getQuantity() - quantityInp;
-
 		}
 
 		return newQuantity;
-
 	}
 
 	public long decreaseBalance(int quantityInp, String nameUser, String name) throws SQLException {
-
-	
-
 		User user = getUserByName(nameUser);
 		Product product = getProductsByName(name);
 
@@ -225,20 +210,16 @@ public class ConnectDB {
 
 		long totalPrice = product.getPrice() * quantityInp;
 		if (user.getBalance() > totalPrice) {
-
 			newBalance = user.getBalance() - totalPrice;
-
 		}
-
 		return newBalance;
 	}
-	
+
 	public void updateBuy(String prod, int quantityIn, String username) throws SQLException {
 
 		long q = decreaseQuantity(quantityIn, prod);
 		long b = decreaseBalance(quantityIn, username, prod);
 
-		
 		try {
 			createConnection();
 
@@ -248,23 +229,19 @@ public class ConnectDB {
 			PreparedStatement psUpdateProduct = conn.prepareStatement(updateQueryProduct);
 			PreparedStatement psUpdateClient = conn.prepareStatement(updateQueryClient);
 
-			
 			System.out.println(q);
 			System.out.println(b);
 
 			psUpdateProduct.setLong(1, q);
 			psUpdateProduct.setString(2, prod);
-			
 
 			psUpdateClient.setLong(1, b);
 			psUpdateClient.setString(2, username);
 
-		
 			psUpdateProduct.executeUpdate();
 			psUpdateClient.executeUpdate();
 
 			conn.commit();
-			System.out.println("update");
 		} finally {
 			if (conn != null) {
 				conn.close();
@@ -273,29 +250,22 @@ public class ConnectDB {
 
 	}
 
-	
-
 	public long replenishQuantity(String prod, long quantity) throws SQLException {
 
 		Product product = getProductsByName(prod);
 		long newQuantity = 0;
 		try {
 			createConnection();
-
 			String sqlUpdate = "UPDATE product " + "SET quantity = ? " + "WHERE namePr = ?";
-
 			PreparedStatement psUpdate = conn.prepareStatement(sqlUpdate);
 
 			newQuantity = product.getQuantity() + quantity;
-			
 
-
-			if(newQuantity<=product.getMaxQuantity()) {
-			psUpdate.setLong(1, newQuantity);
-			psUpdate.setString(2, prod);
-			psUpdate.executeUpdate();
-			conn.commit();
-			
+			if (newQuantity <= product.getMaxQuantity()) {
+				psUpdate.setLong(1, newQuantity);
+				psUpdate.setString(2, prod);
+				psUpdate.executeUpdate();
+				conn.commit();
 			}
 		} finally {
 			if (conn != null) {
@@ -306,7 +276,6 @@ public class ConnectDB {
 
 	}
 
-/////
 	public void addNewCategory(String category) throws SQLException {
 
 		try {
@@ -323,18 +292,16 @@ public class ConnectDB {
 		}
 	}
 
-	//////
 	public void remove(String name) throws SQLException {
-
 		try {
 			createConnection();
-
 			String queryDelete = "delete from product where namePr=?";
 			PreparedStatement psDelete = conn.prepareStatement(queryDelete);
 
 			psDelete.setString(1, name);
 			psDelete.executeUpdate();
 			conn.commit();
+
 		} finally {
 			if (conn != null) {
 				conn.close();
@@ -343,43 +310,36 @@ public class ConnectDB {
 
 	}
 
-	public void addProducts(String prodName, String categoryIn, String quantityIn, String priceIn) throws SQLException {
+	public void addProducts(int categoryid, String prodName, String categoryIn, String quantityIn, String priceIn)
+			throws SQLException {
 
-		//Product product = getProductsByName(prodName);
+		List<Product> products = getAllProducts();
 		try {
 			createConnection();
-
-			String queryInsert = "INSERT INTO product (namePr, quantity, price) VALUES (?, ?, ?)";
+			String queryInsert = "INSERT INTO product (CategoryID,namePr, quantity, price) VALUES (?,?, ?, ?)";
 			PreparedStatement psInsert = conn.prepareStatement(queryInsert);
 
-			 
+			for (Product product : products) {
+				if ((product.getCategory().equals(categoryIn))) {
 
-			// List<Product> products = getAllProducts();
+					System.out.println(product.getCategoryID());
+					categoryid = product.getCategoryID();
+				}
+			}
 
-			//if (product.getName().equals(prodName)) {
-				//	System.out.println("The product already exists.");
-					//printer.print(messages, command);
-				//	return;
-			//	}
-			// for (Product product : products) {
-			// if (product.getCategory().equals(categoryIn)) {
-			// psInsert.setInt(1, product.getCategoryID());
-
-			// }
-			// }
-			psInsert.setString(1, prodName);
-			psInsert.setString(2, quantityIn);
-			psInsert.setString(3, priceIn);
-
+			psInsert.setInt(1, categoryid);
+			psInsert.setString(2, prodName);
+			psInsert.setString(3, quantityIn);
+			psInsert.setString(4, priceIn);
 			psInsert.executeUpdate();
 			conn.commit();
+
 		} finally {
 			if (conn != null) {
 				conn.close();
 			}
 		}
 
-	
 	}
 
 }

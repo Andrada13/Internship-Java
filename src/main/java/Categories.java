@@ -4,11 +4,25 @@ import java.sql.SQLException;
 public class Categories {
 
 	private String category;
+	private String categoryid;
 
 
 	public Categories() {
 
 	}
+
+	
+
+	public String getCategoryid() {
+		return categoryid;
+	}
+
+
+
+	public void setCategoryid(String categoryid) {
+		this.categoryid = categoryid;
+	}
+
 
 
 	public String getCategory() {
