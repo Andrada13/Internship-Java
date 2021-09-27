@@ -1,9 +1,8 @@
-import java.sql.ResultSet;
-import java.sql.SQLException;
+
 
 import org.json.simple.JSONObject;
 
-import com.mysql.cj.xdevapi.Result;
+
 
 /*public class Product {
 

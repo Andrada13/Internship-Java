@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.List;
+
 
 public class Printer {
 	private String displayMode = "CONSOLE"; //modul de afisare implicit este CONSOLE

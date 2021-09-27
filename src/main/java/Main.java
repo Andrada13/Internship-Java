@@ -1,22 +1,12 @@
-import java.io.FileReader;
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+
 import java.util.Scanner;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
+
+
 
 public class Main {
-	public static void main(String[] args) throws SQLException {
+	public static void main(String[] args) throws Exception {
 
-	//	ConnectDB db = new ConnectDB();
-		 //db.createConnection();
-	
+		
 		// JSONParser jsonParser = new JSONParser();
 	
 		Command command = new Command();
@@ -30,7 +20,7 @@ public class Main {
 			 * (IOException | ParseException e) { e.printStackTrace(); }
 			 */
 			System.out.println("type HELP to show available actions");
-			command.createCategoriesList();
+			//command.createCategoriesList();
 			
 			while (!(input = scanner.nextLine()).equals("STOP")) {
 				command.setCommand(input.split(" "));
@@ -41,5 +31,6 @@ public class Main {
 				System.exit(1);
 			}
 		}
+		
 	}
 }
