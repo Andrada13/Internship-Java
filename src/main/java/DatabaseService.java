@@ -10,10 +10,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import org.springframework.stereotype.Component;
 
 
-@Component
+
+
 public class DatabaseService {
 
 	// static final String url = "jdbc:mysql://localhost:3306/store";
