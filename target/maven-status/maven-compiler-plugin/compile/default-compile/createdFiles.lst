@@ -1,0 +1,10 @@
+model\Drink.class
+configurations\AppConfig.class
+interfaces\impl\DatabaseService.class
+model\Product.class
+interfaces\impl\CommandProcessingService.class
+interfaces\PrinterInterface.class
+interfaces\DatabaseServiceInterface.class
+interfaces\CommandProcessingServiceInterface.class
+interfaces\impl\Printer.class
+model\User.class

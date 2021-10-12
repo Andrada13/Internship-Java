@@ -1,81 +1,83 @@
+package interfaces.impl;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+import interfaces.CommandProcessingServiceInterface;
+import interfaces.DatabaseServiceInterface;
+import interfaces.PrinterInterface;
+import model.Category;
+import model.Product;
+import model.User;
 
-public class Command {
+@Component
+public class CommandProcessingService implements CommandProcessingServiceInterface {
 
 	// private static ArrayList<Product> productsArr = new ArrayList();
 	// private static ArrayList<User> usersArr = new ArrayList();
-	
-	private String[] command;
-	private static Printer printer = new Printer();
-	//private static ArrayList<String> messages;
 
-	DatabaseService databaseService = new DatabaseService();
-	
-	public String[] getCommand() {
-		return command;
+	private DatabaseServiceInterface databaseService;
+	private PrinterInterface printer;
+
+	@Autowired
+	CommandProcessingService(DatabaseServiceInterface databaseService, PrinterInterface printer) {
+		this.databaseService = databaseService;
+		this.printer = printer;
 	}
 
-	public void setCommand(String[] command) {
-		this.command = command;
-	}
-	
-	
-	/*
-	 * public void setProducts(JSONArray products) { for (int i = 0; i <
-	 * products.size(); i++) { productsArr.add(new Product((JSONObject)
-	 * products.get(i)));
-	 * 
-	 * } }
-	 * 
-	 * public void setUsers(JSONArray users) { for (int i = 0; i < users.size();
-	 * i++) { usersArr.add(new User((JSONObject) users.get(i)));
-	 * 
-	 * }
-	 * 
-	 * }
-	 */
+	private static final String PRINT = "PRINT";
+	private static final String CATEGORIES = "CATEGORIES";
+	private static final String HELP = "HELP";
+	private static final String PRODUCTS = "PRODUCTS";
+	private static final String ALL = "ALL";
+	private static final String REPLENISH = "REPLENISH";
+	private static final String REMOVE = "REMOVE";
+	private static final String PRODUCT = "PRODUCT";
+	private static final String CATEGORY = "CATEGORY";
+	private static final String ADD = "ADD";
+	private static final String NEW = "NEW";
+	private static final String BUY = "BUY";
+	private static final String FOR = "FOR";
 
-	
-	public void readCommand() throws Exception {
+	public void executeCommand(String[] command) throws Exception {
 		ArrayList<String> messages = new ArrayList<>();
-		
-		
-		if (command.length == 1 && command[0].equals("HELP")) {
-			help();
+
+		if (command.length == 1 && command[0].equals(HELP)) {
+			help(command);
 			return;
 		}
 		if (command.length == 2) {
 			// if (command[0].equals("EXPORT")) {
 			// * export(command[1]);
 			// * return; }
-			if (command[0].equals("PRINT") && command[1].equals("CATEGORIES")) {
-				printCategories();
+			if (command[0].equals(PRINT) && command[1].equals(CATEGORIES)) {
+				printCategories(command);
 				return;
 			}
 		}
 		if (command.length == 3) {
-			if (command[0].equals("PRINT") && command[1].equals("PRODUCTS") && command[2].equals("ALL")) {
-				printAll();
+			if (command[0].equals(PRINT) && command[1].equals(PRODUCTS) && command[2].equals(ALL)) {
+				printAll(command);
 				return;
 			}
-			if (command[0].equals("PRINT") && command[1].equals("PRODUCTS")) {
-				productsName(command[2]);
+			if (command[0].equals(PRINT) && command[1].equals(PRODUCTS)) {
+				productsName(command[2], command);
 				return;
 			}
-			if (command[0].equals("REPLENISH")) {
-				replenish(command[1], command[2]);
+			if (command[0].equals(REPLENISH)) {
+				replenish(command[1], command[2], command);
 				return;
 			}
-			if (command[0].equals("REMOVE") && command[1].equals("PRODUCT")) {
-				removeProduct(command[2]);
+			if (command[0].equals(REMOVE) && command[1].equals(PRODUCT)) {
+				removeProduct(command[2], command);
 				return;
 			}
-			// if (command[0].equals("SWITCH") && command[1].equals("DISPLAY_MODE")) {
+			/// if (command[0].equals("SWITCH") && command[1].equals("DISPLAY_MODE")) {
 			// switchDisplayMode(command[2], null);
 			//// return;
 			// }
@@ -83,13 +85,13 @@ public class Command {
 		}
 
 		if (command.length == 4) {
-			if (command[0].equals("PRINT") && command[1].equals("PRODUCTS") && command[2].equals("CATEGORY")) {
-				printCategory(command[3]);
+			if (command[0].equals(PRINT) && command[1].equals(PRODUCTS) && command[2].equals(CATEGORY)) {
+				printCategory(command[3], command);
 				return;
 			}
 
-			if (command[0].equals("ADD") && command[1].equals("NEW") && command[2].equals("CATEGORY")) {
-				addCategory(command[3]);
+			if (command[0].equals(ADD) && command[1].equals(NEW) && command[2].equals(CATEGORY)) {
+				addCategory(command[3], command);
 				return;
 			}
 			// if (command[0].equals("SWITCH") && command[1].equals("DISPLAY_MODE")) {
@@ -97,14 +99,14 @@ public class Command {
 			// return;
 			// }
 		}
-		if (command.length == 5 && command[0].equals("BUY") && command[3].equals("FOR")) {
-			buy(command[1], command[2], command[4]);
+		if (command.length == 5 && command[0].equals(BUY) && command[3].equals(FOR)) {
+			buy(command[1], command[2], command[4], command);
 			return;
 		}
 
-		if (command.length == 7 && (command[0].equals("ADD")) && (command[1].equals("NEW"))
-				&& (command[2].equals("PRODUCT"))) {
-			addProduct(command[3], command[4], command[5], command[6]);
+		if (command.length == 7 && (command[0].equals(ADD)) && (command[1].equals(NEW))
+				&& (command[2].equals(PRODUCT))) {
+			addProduct(command[3], command[4], command[5], command[6], command);
 			return;
 		}
 
@@ -112,28 +114,27 @@ public class Command {
 		printer.print(messages, command);
 
 	}
-	
-	private void printCategory(String categoryIn) throws Exception {
+
+	public void printCategory(String categoryIn, String[] command) throws Exception {
 		int j = 1;
 		ArrayList<String> messages = new ArrayList<>();
 
-		List<Product> products = databaseService.getProductsByCategory(categoryIn);
+		List<Product> products = databaseService.getProductByCategory(categoryIn);
 
 		for (Product product : products) {
-			if (product.getCategory().equals(categoryIn)) {
-				messages.add(j + " " + product.getName() + " " + product.getQuantity() + " " + product.getPrice());
-				j++;
-			}
+			messages.add(j + " " + product.getName() + " " + product.getQuantity() + " " + product.getPrice());
+			j++;
 		}
-		if (messages.isEmpty()) {
+		if (products.isEmpty()) {
 			messages.add("No category named ' " + categoryIn + " ' was found.");
+
 		}
 		printer.print(messages, command);
 
 	}
 
 	// comanda 2
-	private void printAll() throws Exception {
+	public void printAll(String[] command) throws Exception {
 		int j = 1;
 		ArrayList<String> messages = new ArrayList<>();
 
@@ -142,36 +143,31 @@ public class Command {
 		for (Product product : products) {
 			messages.add(j + " " + product.getName() + " " + product.getQuantity() + " " + product.getCategory() + " "
 					+ product.getPrice());
-
 			j++;
 		}
-
 		printer.print(messages, command);
 
 	}
 
 //comanda 3
-	private void productsName(String nameIn) throws Exception {
+	public void productsName(String nameIn, String[] command) throws Exception {
 		ArrayList<String> messages = new ArrayList<>();
 
-		Product products = databaseService.getProductsByName(nameIn);
+		Product product = databaseService.getProductsByName(nameIn);
 
-		if (products != null) {
-			
-			messages.add(products.getName() + " " + products.getQuantity() + " " + products.getPrice());
-			
-		}else {
+		if (product != null) {
+			messages.add(product.getName() + " " + product.getQuantity() + " " + product.getPrice());
+		} else {
 			messages.add("No product named ' " + nameIn + " ' was found.");
 		}
 		printer.print(messages, command);
 	}
 
 //comanda 4 
-	private void printCategories() throws Exception {
+	public void printCategories(String[] command) throws Exception {
 		ArrayList<String> messages = new ArrayList<>();
-		// HashSet<Object> list = new HashSet<>();
 
-		List<String> list = databaseService.getProductsByCategory();
+		List<String> list = databaseService.getCategoriesName();
 
 		Iterator<String> it = list.iterator();
 		String s = "";
@@ -180,12 +176,9 @@ public class Command {
 			if (it.hasNext()) {
 				s = s + ",";
 			}
-
 		}
-
 		messages.add(s);
 
-		// if (messages.isEmpty()) {
 		if (list.isEmpty()) {
 			messages.add("Categories don't exist. ");
 		}
@@ -194,13 +187,13 @@ public class Command {
 	}
 
 //comanda 5
-	private void buy(String prod, String quantityIn, String username) throws Exception {
+	public void buy(String prod, String quantityIn, String username, String[] command) throws Exception {
 		ArrayList<String> messages = new ArrayList<>();
 
 		Product product = databaseService.getProductsByName(prod);
 		User user = databaseService.getUserByName(username);
 
-		if (!(product.getName() == null)) {
+		if (!(product == null)) {
 			int quantityInp;
 			try {
 				quantityInp = Integer.parseInt(quantityIn);
@@ -214,7 +207,7 @@ public class Command {
 				printer.print(messages, command);
 				return;
 			} else {
-				if (!(user.getUsername() == null)) {
+				if (!(user == null)) {
 					long totalPrice = product.getPrice() * quantityInp;
 
 					if (product.getQuantity() == 0) {
@@ -256,7 +249,7 @@ public class Command {
 	}
 
 	// comanda 6
-	private void replenish(String prod, String quantityRe) throws Exception {
+	public void replenish(String prod, String quantityRe, String[] command) throws Exception {
 		ArrayList<String> messages = new ArrayList<>();
 
 		int quantityInp;
@@ -276,7 +269,7 @@ public class Command {
 
 		Product product = databaseService.getProductsByName(prod);
 
-		if (!(product.getName() == null)) {
+		if (!(product == null)) {
 			if (product.getQuantity() == product.getMaxQuantity()) {
 				messages.add("The quantity is already full.");
 				printer.print(messages, command);
@@ -300,28 +293,30 @@ public class Command {
 		return;
 
 	}
+	///////////////////////////////////////////////////////////////////////////
 
-	/*public void createCategoriesList() throws Exception {
+	/*
+	 * public void createCategoriesList() throws Exception {
+	 * 
+	 * HashSet<String> arrCategories = new HashSet<>(); List<String> list =
+	 * databaseService.getProductsByCategory(); for (String category : list) {
+	 * arrCategories.add(category); }
+	 * 
+	 * System.out.println(arrCategories); }
+	 */
 
-		 HashSet<String> arrCategories = new HashSet<>();
-		List<String> list = databaseService.getProductsByCategory();
+	////////////////////////////
+
+	// comanda 7
+	public void addCategory(String newCategory, String[] command) throws Exception {
+		ArrayList<String> messages = new ArrayList<>();
+		HashSet<String> arrCategories = new HashSet<>();
+
+		List<String> list = databaseService.getCategoriesName();
 		for (String category : list) {
 			arrCategories.add(category);
 		}
 
-		System.out.println(arrCategories);
-	}
-*/
-	// comanda 7
-	private void addCategory(String newCategory) throws Exception {
-		ArrayList<String> messages = new ArrayList<>();
-		 HashSet<String> arrCategories = new HashSet<>();
-		 
-		 List<String> list = databaseService.getProductsByCategory();
-			for (String category : list) {
-				arrCategories.add(category);
-			}
-			
 		if (arrCategories.add(newCategory)) {
 
 			databaseService.addNewCategory(newCategory);
@@ -338,18 +333,17 @@ public class Command {
 	}
 
 	// comanda 8
-	private void addProduct(String prod, String categoryIn, String quantityIn, String priceIn) throws Exception {
+	public void addProduct(String prod, String categoryIn, String quantityIn, String priceIn, String[] command)
+			throws Exception {
 		ArrayList<String> messages = new ArrayList<>();
-	
 
 		HashSet<String> arrCategories = new HashSet<>();
-		 List<String> list = databaseService.getProductsByCategory();
-		 
-			for (String category : list) {
-				arrCategories.add(category);
-			}
-			
-			
+		List<String> list = databaseService.getCategoriesName();
+
+		for (String category : list) {
+			arrCategories.add(category);
+		}
+
 		int quantityInp;
 		int priceInp;
 		try {
@@ -367,35 +361,38 @@ public class Command {
 			printer.print(messages, command);
 			return;
 		}
-		int categoryid = 0;
+		Category id = null;
 		Product product = databaseService.getProductsByName(prod);
 
-		if (product.getName() == null) {
+		// System.out.println(product);
+		if (product == null) {
+
 			if (!arrCategories.contains(categoryIn)) {
 				messages.add("The category does not exists.");
 				printer.print(messages, command);
 				return;
+
 			} else {
-				databaseService.addProducts(categoryid, prod, categoryIn, quantityIn, priceIn);
+
+				databaseService.addProducts(id, prod, categoryIn, quantityIn, priceIn);
 				messages.add(quantityIn + " " + prod + " " + "have been added to " + categoryIn + " " + "category.");
 				printer.print(messages, command);
 				return;
-
 			}
 		}
-
 		messages.add("The product already exists.");
 		printer.print(messages, command);
 		return;
+
 	}
 
 	// comanda 9
-	public void removeProduct(String prodName) throws NumberFormatException, Exception {
+	public void removeProduct(String prodName, String[] command) throws NumberFormatException, Exception {
 		ArrayList<String> messages = new ArrayList<>();
 
 		Product product = databaseService.getProductsByName(prodName);
 
-		if (!(product.getName() == null)) {
+		if (!(product == null)) {
 			if (!(product.getQuantity() == 0)) {
 				messages.add("Cannot remove " + product.getName() + " " + "because quantity is not zero. Quantity is "
 						+ product.getQuantity());
@@ -414,7 +411,7 @@ public class Command {
 	}
 
 	// bonus 1
-	private void help() {
+	public void help(String[] command) {
 		ArrayList<String> messages = new ArrayList<>();
 		messages.add(
 				"PRINT PRODUCTS CATEGORY ${CATEGORY_NAME} - Show information about products form a given category");
@@ -432,12 +429,32 @@ public class Command {
 		printer.print(messages, command);
 
 	}
-
 }
 
-
-
 /*
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * public void setProducts(JSONArray products) { for (int i = 0; i <
+ * products.size(); i++) { productsArr.add(new Product((JSONObject)
+ * products.get(i)));
+ * 
+ * } }
+ * 
+ * public void setUsers(JSONArray users) { for (int i = 0; i < users.size();
+ * i++) { usersArr.add(new User((JSONObject) users.get(i)));
+ * 
+ * }
+ * 
+ * }
+ * 
+ * 
+ * 
+ * 
+ * 
  * // bonus 3 private void export(String newJSON) { messages = new ArrayList();
  * messages.add(" "); printer.print(messages, command);
  * 

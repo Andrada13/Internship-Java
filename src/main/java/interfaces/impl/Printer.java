@@ -1,12 +1,19 @@
+
+package interfaces.impl;
+
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
+import java.util.List;
 
+import org.springframework.stereotype.Component;
 
-public class Printer {
+import interfaces.PrinterInterface;
+
+@Component
+public class Printer implements PrinterInterface{
 	private String displayMode = "CONSOLE"; //modul de afisare implicit este CONSOLE
 	private String path;
 	
@@ -27,16 +34,19 @@ public class Printer {
 		this.path = path;
 	}
 
-	public void print(ArrayList<String> messages, String[] commands) {
+
+	public void print(List<String> messages, String[] commands) {
+
 		if (displayMode.equals("CONSOLE")) {
 			printInConsole(messages);
 			return;
 		}
 		printInFile(messages, commands);
 
+		
 	}
 
-	private void printInFile(ArrayList<String> messages, String[] commands) {
+	private void printInFile(List<String> messages, String[] commands) {
 		try (FileWriter file = new FileWriter(this.getPath(),true)) {
 			BufferedWriter bw = new BufferedWriter(file);
 			PrintWriter out = new PrintWriter(bw);
@@ -57,7 +67,7 @@ public class Printer {
 		}
 	}
 
-	private void printInConsole(ArrayList<String> messages) {
+	private void printInConsole(List<String> messages) {
 		for (String message : messages) {
 			System.out.println(message);
 		}
