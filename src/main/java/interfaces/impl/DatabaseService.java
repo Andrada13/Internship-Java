@@ -10,6 +10,8 @@ import javax.persistence.NoResultException;
 import javax.persistence.Persistence;
 import javax.persistence.Query;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 import interfaces.DatabaseServiceInterface;
@@ -19,25 +21,25 @@ import model.User;
 
 @Component
 public class DatabaseService implements DatabaseServiceInterface {
+	
+	private static final Logger logger = LogManager.getLogger(DatabaseService.class);
 
 	private EntityManagerFactory entityManagerFactory;
 
 	public DatabaseService() {
-
 		this.entityManagerFactory = Persistence.createEntityManagerFactory("databaseService");
 	}
 
-	public List<Product> getProductByCategory(String categoryIn) throws Exception {
+	public List<Product> getProductByCategory(String category) throws Exception {
 
 		List<Product> products = new ArrayList<Product>();
 		EntityManager entityManager = entityManagerFactory.createEntityManager();
 
 		try {
 			products = entityManager
-					.createQuery("SELECT p FROM Product p JOIN FETCH p.category c WHERE c.categoryPr = :categoryIn",
+					.createQuery("SELECT p FROM Product p JOIN FETCH p.category c WHERE c.name = :category",
 							Product.class)
-					.setParameter("categoryIn", categoryIn).getResultList();
-
+					.setParameter("category", category).getResultList();
 		} finally {
 			if (entityManager != null) {
 				entityManager.close();
@@ -55,12 +57,12 @@ public class DatabaseService implements DatabaseServiceInterface {
 
 		try {
 			products = entityManager
-					.createQuery("SELECT p FROM Product p JOIN FETCH p.category c WHERE p.category = c.categoryID ",
+					.createQuery("SELECT p FROM Product p JOIN FETCH p.category c WHERE p.category = c.id ",
 							Product.class)
 					.getResultList();
 		} catch (NoResultException nre) {
 
-			nre.printStackTrace();
+			logger.error("The list of products is empty.");
 			return null;
 		} finally {
 
@@ -71,17 +73,17 @@ public class DatabaseService implements DatabaseServiceInterface {
 		return products;
 	}
 
-	public Product getProductsByName(String nameIn) throws Exception {
+	public Product getProductsByName(String name) throws Exception {
 
 		Product product = new Product();
 		EntityManager entityManager = entityManagerFactory.createEntityManager();
 
 		try {
-			product = entityManager.createQuery("SELECT p FROM Product p  WHERE p.name= :nameIn", Product.class)
-					.setParameter("nameIn", nameIn).getSingleResult();
+			product = entityManager.createQuery("SELECT p FROM Product p  WHERE p.name= :name", Product.class)
+					.setParameter("name", name).getSingleResult();
 		} catch (NoResultException nre) {
 
-			nre.printStackTrace();
+			logger.error("No existing product with this name.");
 			return null;
 		} finally {
 
@@ -93,17 +95,18 @@ public class DatabaseService implements DatabaseServiceInterface {
 		return product;
 	}
 
-	public User getUserByName(String nameUser) throws Exception {
+	public User getUserByName(String username) throws Exception {
 
 		User user = new User();
 
 		EntityManager entityManager = entityManagerFactory.createEntityManager();
 
 		try {
-			user = entityManager.createQuery("SELECT u FROM User u WHERE u.username = :nameUser", User.class)
-					.setParameter("nameUser", nameUser).getSingleResult();
+			user = entityManager.createQuery("SELECT u FROM User u WHERE u.username = :username", User.class)
+					.setParameter("username", username).getSingleResult();
 		} catch (NoResultException nre) {
-			nre.printStackTrace();
+			
+			logger.error("No existing user with this username.");
 			return null;
 		} finally {
 
@@ -121,7 +124,7 @@ public class DatabaseService implements DatabaseServiceInterface {
 		EntityManager entityManager = entityManagerFactory.createEntityManager();
 
 		try {
-			categories = entityManager.createQuery("SELECT c.categoryPr FROM Category c", String.class).getResultList();
+			categories = entityManager.createQuery("SELECT c.name FROM Category c", String.class).getResultList();
 
 		} finally {
 
@@ -132,35 +135,35 @@ public class DatabaseService implements DatabaseServiceInterface {
 		return categories;
 	}
 
-	public long decreaseQuantity(int quantityInp, String name) throws Exception {
+	public long decreaseQuantity(int quantity, String name) throws Exception {
 		Product product = getProductsByName(name);
 
 		long newQuantity = 0;
 
-		if (product.getQuantity() > quantityInp) {
-			newQuantity = product.getQuantity() - quantityInp;
+		if (product.getQuantity() > quantity) {
+			newQuantity = product.getQuantity() - quantity;
 		}
 
 		return newQuantity;
 	}
 
-	public long decreaseBalance(int quantityInp, String nameUser, String name) throws Exception {
-		User user = getUserByName(nameUser);
+	public long decreaseBalance(int quantity, String username, String name) throws Exception {
+		User user = getUserByName(username);
 		Product product = getProductsByName(name);
 
 		long newBalance = 0;
 
-		long totalPrice = product.getPrice() * quantityInp;
+		long totalPrice = product.getPrice() * quantity;
 		if (user.getBalance() > totalPrice) {
 			newBalance = user.getBalance() - totalPrice;
 		}
 		return newBalance;
 	}
 
-	public void updateBuy(String prod, int quantityIn, String username) throws Exception {
+	public void updateBuy(String name, int quantity, String username) throws Exception {
 
-		long q = decreaseQuantity(quantityIn, prod);
-		long b = decreaseBalance(quantityIn, username, prod);
+		long q = decreaseQuantity(quantity, name);
+		long b = decreaseBalance(quantity, username, name);
 
 		EntityManager entityManager = entityManagerFactory.createEntityManager();
 
@@ -172,7 +175,7 @@ public class DatabaseService implements DatabaseServiceInterface {
 			Query updateQueryClient = entityManager
 					.createQuery("UPDATE User u SET u.balance = ?1 WHERE u.username = ?2");
 			updateQueryProduct.setParameter(1, q);
-			updateQueryProduct.setParameter(2, prod);
+			updateQueryProduct.setParameter(2, name);
 
 			updateQueryClient.setParameter(1, b);
 			updateQueryClient.setParameter(2, username);
@@ -189,11 +192,11 @@ public class DatabaseService implements DatabaseServiceInterface {
 
 	}
 
-	public long replenishQuantity(String prod, long quantity) throws Exception {
+	public long replenishQuantity(String name, long quantity) throws Exception {
 
 		EntityManager entityManager = entityManagerFactory.createEntityManager();
 
-		Product product = getProductsByName(prod);
+		Product product = getProductsByName(name);
 		long newQuantity = 0;
 		try {
 			entityManager.getTransaction().begin();
@@ -203,7 +206,7 @@ public class DatabaseService implements DatabaseServiceInterface {
 			newQuantity = product.getQuantity() + quantity;
 			if (newQuantity <= product.getMaxQuantity()) {
 				replenishUpdate.setParameter(1, newQuantity);
-				replenishUpdate.setParameter(2, prod);
+				replenishUpdate.setParameter(2, name);
 
 				replenishUpdate.executeUpdate();
 
@@ -219,14 +222,14 @@ public class DatabaseService implements DatabaseServiceInterface {
 
 	}
 
-	public void addNewCategory(String categoryIn) throws Exception {
+	public void addNewCategory(String newCategory) throws Exception {
 
 		EntityManager entityManager = entityManagerFactory.createEntityManager();
 		try {
 			entityManager.getTransaction().begin();
 
 			Category category = new Category();
-			category.setCategoryPr(categoryIn);
+			category.setName(newCategory);
 
 			entityManager.persist(category);
 			entityManager.getTransaction().commit();
@@ -238,7 +241,7 @@ public class DatabaseService implements DatabaseServiceInterface {
 		}
 	}
 
-	public void remove(String nameIn) throws Exception {
+	public void remove(String name) throws Exception {
 
 		EntityManager entityManager = entityManagerFactory.createEntityManager();
 
@@ -246,8 +249,8 @@ public class DatabaseService implements DatabaseServiceInterface {
 
 			entityManager.getTransaction().begin();
 
-			Product product = getProductsByName(nameIn);
-			product = entityManager.find(Product.class, product.getProductID());
+			Product product = getProductsByName(name);
+			product = entityManager.find(Product.class, product.getId());
 
 			entityManager.remove(product);
 			entityManager.getTransaction().commit();
@@ -258,27 +261,47 @@ public class DatabaseService implements DatabaseServiceInterface {
 			}
 		}
 	}
+	
+	public Integer getCategoryid(String name) throws Exception {
 
-	public void addProducts(Category id, String prodName, String categoryIn, String quantityIn, String priceIn)
+		Integer id;
+		EntityManager entityManager = entityManagerFactory.createEntityManager();
+
+		try {
+			id = entityManager
+					.createQuery("SELECT c.id FROM Category c WHERE c.name = :name",
+							Integer.class)
+					.setParameter("name", name).getSingleResult();
+
+		} finally {
+			if (entityManager != null) {
+				entityManager.close();
+			}
+		}
+
+		return id;
+
+	}
+
+	public void addProducts(Category id, String name, String categoryInput, String quantityInput, String priceInput)
 			throws Exception {
 
 		EntityManager entityManager = entityManagerFactory.createEntityManager();
 
 		try {
-			List<Product> products = getProductByCategory(categoryIn);
-
+			Integer categoryid = getCategoryid(categoryInput);
 			Product newProduct = new Product();
+
 			entityManager.getTransaction().begin();
-
-			for (Product product : products) {
-				id = product.getCategory();
-			}
-
-			long quantity = Long.parseLong(quantityIn);
-			long price = Long.parseLong(priceIn);
-
+		
+			id = entityManager.find(Category.class, categoryid);
+		
+			long quantity = Long.parseLong(quantityInput);
+			long price = Long.parseLong(priceInput);
+		
+		
 			newProduct.setCategory(id);
-			newProduct.setName(prodName);
+			newProduct.setName(name);
 			newProduct.setQuantity(quantity);
 			newProduct.setPrice(price);
 
@@ -296,350 +319,3 @@ public class DatabaseService implements DatabaseServiceInterface {
 
 }
 
-/*
- * package interfaces.impl;
- * 
- * 
- * 
- * import java.io.FileInputStream; import java.io.IOException; import
- * java.io.InputStream; import java.sql.Connection; import
- * java.sql.DriverManager; import java.sql.PreparedStatement; import
- * java.sql.ResultSet; import java.sql.SQLException; import java.sql.Statement;
- * import java.util.ArrayList; import java.util.List; import
- * java.util.Properties;
- * 
- * import javax.annotation.PostConstruct; import
- * javax.persistence.EntityManager; import
- * javax.persistence.EntityManagerFactory; import javax.persistence.Persistence;
- * import javax.persistence.Query;
- * 
- * import org.springframework.stereotype.Component;
- * 
- * import interfaces.DatabaseServiceInterface; import model.Categories; import
- * model.Product; import model.User;
- * 
- * @Component public class DatabaseService implements DatabaseServiceInterface {
- * 
- * /* Properties properties = loadPropertiesFile();
- * 
- * @PostConstruct public Properties loadPropertiesFile() { Properties properties
- * = new Properties(); InputStream input; try { input = new
- * FileInputStream("databaseService.properties"); properties.load(input);
- * input.close(); } catch (IOException e) { e.printStackTrace(); }
- * 
- * return properties; }
- * 
- * public Connection createConnection() throws SQLException {
- * 
- * Connection conn = null;
- * 
- * try { String url = (String) properties.get("url"); String JDBCDriver =
- * (String) properties.get("driver"); String usernameDB = (String)
- * properties.get("username"); String password = (String)
- * properties.get("password");
- * 
- * Class.forName(JDBCDriver);
- * 
- * conn = DriverManager.getConnection(url, usernameDB, password);
- * conn.setAutoCommit(false); System.out.println("connected");
- * 
- * } catch (SQLException ex) { System.out.println("An error occurred.");
- * ex.printStackTrace(); } catch (ClassNotFoundException e) {
- * e.printStackTrace(); } catch (Exception e) { e.printStackTrace(); } return
- * conn;
- * 
- * }
- * 
- * public List<Product> getProductByCategory(String categoryIn) throws Exception
- * {
- * 
- * //List<Product> products = new ArrayList<Product>();
- * 
- * 
- * 
- * EntityManagerFactory a = Persistence.createEntityManagerFactory("data");
- * EntityManager ab = a.createEntityManager();
- * 
- * //ab.getTransaction().begin(); //String query =
- * "SELECT u FROM Product u WHERE u.category=:categoryIn"; //String query =
- * "SELECT p FROM Product p JOIN Categories n ON p.category = n.categoryID where n.categoryPr= :categoryIn"
- * ; //String query =
- * "SELECT e FROM Product e,Categories c where  e.categories = c and e.category = c.categoryID and c.categoryPr = :categoryIn"
- * ; //String query =
- * "SELECT p FROM Product p, Categories c WHERE p.category = c.categoryID AND p.category=:categoryIn"
- * ; //ab.setProperty(query, categoryIn); //Query query1 =
- * ab.createQuery(query);
- * 
- * 
- * //query1.setParameter("categoryIn", categoryIn); //
- * 
- * //ab.setProperty(query, categoryIn); //List<Product> products =
- * query1.getResultList();
- * 
- * 
- * 
- * List<Product> products = ab.
- * createQuery("SELECT p FROM Product p JOIN Categories n ON p.category = n.categoryID where n.categoryPr= :categoryIn"
- * , Product.class) .setParameter("categoryIn", categoryIn) .getResultList();
- * 
- * /*try (Connection conn = createConnection(); Statement statement =
- * conn.createStatement(); ResultSet result = statement.executeQuery(query)) {
- * while (result.next()) { Product product = new Product(); if
- * (result.getString("category").equals(categoryIn)) {
- * product.setCategory(result.getString("category"));
- * product.setQuantity(result.getLong("quantity"));
- * product.setName(result.getString("namePr"));
- * product.setPrice(result.getLong("price")); products.add(product); }
- * 
- * } }
- * 
- * return products; /* String query =
- * "SELECT *FROM product INNER JOIN categories ON product.CategoryID=categories.CategoryID"
- * ;
- * 
- * try (Connection conn = createConnection(); Statement statement =
- * conn.createStatement(); ResultSet result = statement.executeQuery(query)) {
- * while (result.next()) { Product product = new Product(); if
- * (result.getString("category").equals(categoryIn)) {
- * product.setCategory(result.getString("category"));
- * product.setQuantity(result.getLong("quantity"));
- * product.setName(result.getString("namePr"));
- * product.setPrice(result.getLong("price")); products.add(product); }
- * 
- * } } return products;
- * 
- * }
- * 
- * public List<Product> getAllProducts() throws Exception {
- * 
- * // List<Product> products = new ArrayList<Product>(); //String query =
- * "SELECT *FROM product INNER JOIN categories ON product.CategoryID=categories.CategoryID"
- * ;
- * 
- * 
- * EntityManagerFactory a = Persistence.createEntityManagerFactory("data");
- * EntityManager ab = a.createEntityManager();
- * 
- * ab.getTransaction().begin();
- * 
- * //String query =
- * "SELECT e FROM Product e,Categories c where  e.categories = c and e.category = c.categoryID"
- * ; String query =
- * "SELECT p FROM Product p JOIN Categories n ON p.category = n.categoryID";
- * 
- * Query query1 = ab.createQuery(query);
- * 
- * List<Product> products = query1.getResultList();
- * 
- * /* try (Connection conn = createConnection(); Statement statement =
- * conn.createStatement(); ResultSet result = statement.executeQuery(query)) {
- * while (result.next()) { Product product = new Product();
- * product.setCategoryID(result.getInt("CategoryID"));
- * product.setCategory(result.getString("category"));
- * product.setName(result.getString("namePr"));
- * product.setQuantity(result.getLong("quantity"));
- * product.setPrice(result.getInt("price"));
- * product.setMaxQuantity(result.getLong("maxQuantity"));
- * 
- * }
- * 
- * }
- * 
- * 
- * 
- * return products; }
- * 
- * public Product getProductsByName(String nameIn) throws Exception {
- * 
- * 
- * 
- * 
- * EntityManagerFactory a = Persistence.createEntityManagerFactory("data");
- * EntityManager ab = a.createEntityManager();
- * 
- * 
- * 
- * Product product = ab.
- * createQuery("SELECT p FROM Product p JOIN Categories n ON p.category = n.categoryID where p.name= :nameIn"
- * , Product.class) .setParameter("nameIn", nameIn) .getSingleResult();
- * 
- * /*
- * 
- * //Product product; String query =
- * "SELECT *FROM product INNER JOIN categories ON product.CategoryID=categories.CategoryID "
- * ; try (Connection conn = createConnection(); Statement statement =
- * conn.createStatement(); ResultSet result = statement.executeQuery(query)) {
- * product = new Product();
- * 
- * while (result.next()) { if (result.getString("namePr").equals(nameIn)) {
- * product.setName(result.getString("namePr"));
- * product.setCategoryID(result.getInt("CategoryID"));
- * product.setQuantity(result.getLong("quantity"));
- * product.setPrice(result.getLong("price"));
- * product.setMaxQuantity(result.getLong("maxQuantity")); } } }
- * 
- * 
- * return product; }
- * 
- * public User getUserByName(String nameUser) throws Exception {
- * 
- * User user = new User(); String query = "SELECT *FROM clients";
- * 
- * try (Connection conn = createConnection(); Statement statement =
- * conn.createStatement(); ResultSet result = statement.executeQuery(query)) {
- * while (result.next()) { if (result.getString("username").equals(nameUser)) {
- * user.setUsername(result.getString("username"));
- * user.setBalance(result.getLong("balance")); } } } return user; }
- * 
- * public List<String> getProductsByCategory() throws Exception {
- * 
- * 
- * //List<String> categories = new ArrayList<String>(); EntityManagerFactory a =
- * Persistence.createEntityManagerFactory("data"); EntityManager ab =
- * a.createEntityManager();
- * 
- * List<String> categories =
- * ab.createQuery("SELECT c.categoryPr FROM Categories c").getResultList();
- * 
- * //Query query1 = ab.createQuery("SELECT c FROM Categories c");
- * 
- * //ab.getTransaction().begin();
- * 
- * //String query =
- * "SELECT e FROM Product e,Categories c where  e.categories = c and e.category = c.categoryID"
- * ; //String query = "SELECT c FROM Categories c";
- * 
- * //Query query1 = ab.createQuery(query);
- * 
- * //List<String> categories = query1.getResultList(); /* List<String>
- * categories = new ArrayList<String>(); String query =
- * "select *from categories"; try (Connection conn = createConnection();
- * Statement statement = conn.createStatement(); ResultSet result =
- * statement.executeQuery(query)) { while (result.next()) {
- * categories.add(result.getString("category")); } }
- * 
- * return categories; }
- * 
- * public List<User> getUsers() throws Exception {
- * 
- * List<User> clients = new ArrayList<User>(); String queryClients =
- * "select *from clients"; try (Connection conn = createConnection(); Statement
- * statement = conn.createStatement(); ResultSet result =
- * statement.executeQuery(queryClients)) { while (result.next()) { User user =
- * new User();
- * 
- * user.setUsername(result.getString("username"));
- * user.setBalance(result.getLong("balance"));
- * 
- * clients.add(user); } }
- * 
- * return clients; }
- * 
- * public long decreaseQuantity(int quantityInp, String name) throws Exception {
- * Product product = getProductsByName(name);
- * 
- * long newQuantity = 0;
- * 
- * if (product.getQuantity() > quantityInp) { newQuantity =
- * product.getQuantity() - quantityInp; }
- * 
- * return newQuantity; }
- * 
- * public long decreaseBalance(int quantityInp, String nameUser, String name)
- * throws Exception { User user = getUserByName(nameUser); Product product =
- * getProductsByName(name);
- * 
- * long newBalance = 0;
- * 
- * long totalPrice = product.getPrice() * quantityInp; if (user.getBalance() >
- * totalPrice) { newBalance = user.getBalance() - totalPrice; } return
- * newBalance; }
- * 
- * public void updateBuy(String prod, int quantityIn, String username) throws
- * Exception {
- * 
- * long q = decreaseQuantity(quantityIn, prod); long b =
- * decreaseBalance(quantityIn, username, prod);
- * 
- * String updateQueryProduct = "UPDATE product SET quantity=? WHERE namePr=?";
- * String updateQueryClient = "UPDATE clients SET balance=? WHERE username=?";
- * 
- * try (Connection conn = createConnection(); PreparedStatement psUpdateProduct
- * = conn.prepareStatement(updateQueryProduct); PreparedStatement psUpdateClient
- * = conn.prepareStatement(updateQueryClient);) {
- * 
- * System.out.println(q); System.out.println(b);
- * 
- * psUpdateProduct.setLong(1, q); psUpdateProduct.setString(2, prod);
- * 
- * psUpdateClient.setLong(1, b); psUpdateClient.setString(2, username);
- * 
- * psUpdateProduct.executeUpdate(); psUpdateClient.executeUpdate();
- * 
- * conn.commit(); }
- * 
- * }
- * 
- * public long replenishQuantity(String prod, long quantity) throws Exception {
- * 
- * Product product = getProductsByName(prod); String sqlUpdate =
- * "UPDATE product " + "SET quantity = ? " + "WHERE namePr = ?";
- * 
- * long newQuantity = 0; try (Connection conn = createConnection();
- * PreparedStatement psUpdate = conn.prepareStatement(sqlUpdate)) { newQuantity
- * = product.getQuantity() + quantity;
- * 
- * if (newQuantity <= product.getMaxQuantity()) { psUpdate.setLong(1,
- * newQuantity); psUpdate.setString(2, prod); psUpdate.executeUpdate();
- * conn.commit(); } } return newQuantity;
- * 
- * }
- * 
- * public void addNewCategory(String category) throws Exception {
- * 
- * String queryInsert = "insert into categories (category) values (?)"; try
- * (Connection conn = createConnection(); PreparedStatement psInsert =
- * conn.prepareStatement(queryInsert);) {
- * 
- * psInsert.setString(1, category); psInsert.executeUpdate(); conn.commit(); } }
- * 
- * ///merge public void remove(String nameIn) throws Exception {
- * 
- * EntityManagerFactory a = Persistence.createEntityManagerFactory("data");
- * EntityManager ab = a.createEntityManager();
- * 
- * ab.getTransaction().begin();
- * 
- * Query query = ab.createQuery(
- * "DELETE FROM Product p WHERE p.name = :nameIn"); int deletedCount =
- * query.setParameter("nameIn", nameIn).executeUpdate(); // ab.persist(query);
- * ab.getTransaction().commit(); System.out.println(deletedCount); /* String
- * queryDelete = "delete from product where namePr=?";
- * 
- * try (Connection conn = createConnection(); PreparedStatement psDelete =
- * conn.prepareStatement(queryDelete)) { psDelete.setString(1, name);
- * psDelete.executeUpdate(); conn.commit(); }
- * 
- * }
- * 
- * public void addProducts(int categoryid, String prodName, String categoryIn,
- * String quantityIn, String priceIn) throws Exception {
- * 
- * 
- * 
- * 
- * /* List<Product> products = getAllProducts(); String queryInsert =
- * "INSERT INTO product (CategoryID,namePr, quantity, price) VALUES (?,?, ?, ?)"
- * ;
- * 
- * try (Connection conn = createConnection(); PreparedStatement psInsert =
- * conn.prepareStatement(queryInsert)) { for (Product product : products) { if
- * ((product.getCategory().equals(categoryIn))) { categoryid =
- * product.getCategoryID(); } } psInsert.setInt(1, categoryid);
- * psInsert.setString(2, prodName); psInsert.setString(3, quantityIn);
- * psInsert.setString(4, priceIn); psInsert.executeUpdate(); conn.commit(); }
- * 
- * }
- * 
- * }
- */

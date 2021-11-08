@@ -18,9 +18,6 @@ import model.User;
 @Component
 public class CommandProcessingService implements CommandProcessingServiceInterface {
 
-	// private static ArrayList<Product> productsArr = new ArrayList();
-	// private static ArrayList<User> usersArr = new ArrayList();
-
 	private DatabaseServiceInterface databaseService;
 	private PrinterInterface printer;
 
@@ -28,6 +25,9 @@ public class CommandProcessingService implements CommandProcessingServiceInterfa
 	CommandProcessingService(DatabaseServiceInterface databaseService, PrinterInterface printer) {
 		this.databaseService = databaseService;
 		this.printer = printer;
+	}
+
+	public CommandProcessingService() {
 	}
 
 	private static final String PRINT = "PRINT";
@@ -48,65 +48,62 @@ public class CommandProcessingService implements CommandProcessingServiceInterfa
 		ArrayList<String> messages = new ArrayList<>();
 
 		if (command.length == 1 && command[0].equals(HELP)) {
-			help(command);
+			help();
 			return;
 		}
 		if (command.length == 2) {
-			// if (command[0].equals("EXPORT")) {
-			// * export(command[1]);
-			// * return; }
 			if (command[0].equals(PRINT) && command[1].equals(CATEGORIES)) {
-				printCategories(command);
+				printCategories();
 				return;
 			}
 		}
 		if (command.length == 3) {
 			if (command[0].equals(PRINT) && command[1].equals(PRODUCTS) && command[2].equals(ALL)) {
-				printAll(command);
+				printProducts();
 				return;
 			}
 			if (command[0].equals(PRINT) && command[1].equals(PRODUCTS)) {
-				productsName(command[2], command);
+				printProductsByName(command[2]);
 				return;
 			}
 			if (command[0].equals(REPLENISH)) {
-				replenish(command[1], command[2], command);
+				replenishQuantity(command[1], command[2]);
 				return;
 			}
 			if (command[0].equals(REMOVE) && command[1].equals(PRODUCT)) {
-				removeProduct(command[2], command);
+				removeProduct(command[2]);
 				return;
 			}
-			/// if (command[0].equals("SWITCH") && command[1].equals("DISPLAY_MODE")) {
-			// switchDisplayMode(command[2], null);
-			//// return;
-			// }
+			 if (command[0].equals("SWITCH") && command[1].equals("DISPLAY_MODE")) {
+			 switchDisplayMode(command[2], null);
+			 return;
+			 }
 
 		}
 
 		if (command.length == 4) {
 			if (command[0].equals(PRINT) && command[1].equals(PRODUCTS) && command[2].equals(CATEGORY)) {
-				printCategory(command[3], command);
+				printProductsByCategory(command[3]);
 				return;
 			}
 
 			if (command[0].equals(ADD) && command[1].equals(NEW) && command[2].equals(CATEGORY)) {
-				addCategory(command[3], command);
+				addCategory(command[3]);
 				return;
 			}
-			// if (command[0].equals("SWITCH") && command[1].equals("DISPLAY_MODE")) {
-			// switchDisplayMode(command[2], command[3]);
-			// return;
-			// }
+			 if (command[0].equals("SWITCH") && command[1].equals("DISPLAY_MODE")) {
+			 switchDisplayMode(command[2], command[3]);
+			 return;
+			 }
 		}
 		if (command.length == 5 && command[0].equals(BUY) && command[3].equals(FOR)) {
-			buy(command[1], command[2], command[4], command);
+			buy(command[1], command[2], command[4]);
 			return;
 		}
 
 		if (command.length == 7 && (command[0].equals(ADD)) && (command[1].equals(NEW))
 				&& (command[2].equals(PRODUCT))) {
-			addProduct(command[3], command[4], command[5], command[6], command);
+			addProduct(command[3], command[4], command[5], command[6]);
 			return;
 		}
 
@@ -115,26 +112,29 @@ public class CommandProcessingService implements CommandProcessingServiceInterfa
 
 	}
 
-	public void printCategory(String categoryIn, String[] command) throws Exception {
+	public List<String> printProductsByCategory(String category) throws Exception {
+		String[] command = null;
 		int j = 1;
 		ArrayList<String> messages = new ArrayList<>();
 
-		List<Product> products = databaseService.getProductByCategory(categoryIn);
+		List<Product> products = databaseService.getProductByCategory(category);
 
 		for (Product product : products) {
 			messages.add(j + " " + product.getName() + " " + product.getQuantity() + " " + product.getPrice());
 			j++;
 		}
 		if (products.isEmpty()) {
-			messages.add("No category named ' " + categoryIn + " ' was found.");
+			messages.add("No category named ' " + category + " ' was found.");
 
 		}
 		printer.print(messages, command);
 
+		return messages;
 	}
 
 	// comanda 2
-	public void printAll(String[] command) throws Exception {
+	public List<String> printProducts() throws Exception {
+		String[] command = null;
 		int j = 1;
 		ArrayList<String> messages = new ArrayList<>();
 
@@ -147,24 +147,28 @@ public class CommandProcessingService implements CommandProcessingServiceInterfa
 		}
 		printer.print(messages, command);
 
+		return messages;
 	}
 
 //comanda 3
-	public void productsName(String nameIn, String[] command) throws Exception {
+	public List<String> printProductsByName(String name) throws Exception {
+		String[] command = null;
 		ArrayList<String> messages = new ArrayList<>();
 
-		Product product = databaseService.getProductsByName(nameIn);
+		Product product = databaseService.getProductsByName(name);
 
 		if (product != null) {
 			messages.add(product.getName() + " " + product.getQuantity() + " " + product.getPrice());
 		} else {
-			messages.add("No product named ' " + nameIn + " ' was found.");
+			messages.add("No product named ' " + name + " ' was found.");
 		}
 		printer.print(messages, command);
+		return messages;
 	}
 
 //comanda 4 
-	public void printCategories(String[] command) throws Exception {
+	public List<String> printCategories() throws Exception {
+		String[] command = null;
 		ArrayList<String> messages = new ArrayList<>();
 
 		List<String> list = databaseService.getCategoriesName();
@@ -183,29 +187,30 @@ public class CommandProcessingService implements CommandProcessingServiceInterfa
 			messages.add("Categories don't exist. ");
 		}
 		printer.print(messages, command);
-
+		return messages;
 	}
 
 //comanda 5
-	public void buy(String prod, String quantityIn, String username, String[] command) throws Exception {
+	public List<String> buy(String name, String quantity, String username) throws Exception {
+		String[] command = null;
 		ArrayList<String> messages = new ArrayList<>();
 
-		Product product = databaseService.getProductsByName(prod);
+		Product product = databaseService.getProductsByName(name);
 		User user = databaseService.getUserByName(username);
 
 		if (!(product == null)) {
 			int quantityInp;
 			try {
-				quantityInp = Integer.parseInt(quantityIn);
+				quantityInp = Integer.parseInt(quantity);
 			} catch (NumberFormatException nfe) {
 				messages.add("Error ! The number must be integer.");
 				printer.print(messages, command);
-				return;
+				return messages;
 			}
-			if (!(Integer.parseInt(quantityIn) > 0)) {
+			if (!(Integer.parseInt(quantity) > 0)) {
 				messages.add("Quantity must be positive.");
 				printer.print(messages, command);
-				return;
+				return messages;
 			} else {
 				if (!(user == null)) {
 					long totalPrice = product.getPrice() * quantityInp;
@@ -213,102 +218,92 @@ public class CommandProcessingService implements CommandProcessingServiceInterfa
 					if (product.getQuantity() == 0) {
 						messages.add("The product " + product.getName() + " is no longer in stock.");
 						printer.print(messages, command);
-						return;
+						return messages;
 					}
 					if (!(user.getBalance() > totalPrice)) {
 						messages.add("Your balance is too low.");
 						printer.print(messages, command);
-						return;
+						return messages;
 					}
 					if (product.getQuantity() < quantityInp) {
-						messages.add("User " + user.getUsername() + " cannot buy " + quantityIn + " "
-								+ product.getName() + " because there is only " + product.getQuantity() + " "
-								+ product.getName() + " left. ");
+						messages.add("User " + user.getUsername() + " cannot buy " + quantity + " " + product.getName()
+								+ " because there is only " + product.getQuantity() + " " + product.getName()
+								+ " left. ");
 						printer.print(messages, command);
-						return;
+						return messages;
 					}
 
-					databaseService.updateBuy(prod, quantityInp, username);
+					databaseService.updateBuy(name, quantityInp, username);
 
-					messages.add("User " + user.getUsername() + " has bought " + quantityIn + " " + product.getName());
+					messages.add("User " + user.getUsername() + " has bought " + quantity + " " + product.getName());
 					printer.print(messages, command);
-					return;
+					return messages;
 				}
 
 			}
 
 			messages.add("Client not found.");
 			printer.print(messages, command);
-			return;
+			return messages;
 
 		}
 
 		messages.add("Product not found.");
 		printer.print(messages, command);
 
+		return messages;
 	}
 
 	// comanda 6
-	public void replenish(String prod, String quantityRe, String[] command) throws Exception {
+	public List<String> replenishQuantity(String name, String quantity) throws Exception {
+		String[] command = null;
 		ArrayList<String> messages = new ArrayList<>();
 
 		int quantityInp;
 		try {
-			quantityInp = Integer.parseInt(quantityRe);
+			quantityInp = Integer.parseInt(quantity);
 
 		} catch (NumberFormatException nfe) {
 			messages.add("Error ! The second argument must be integer.");
 			printer.print(messages, command);
-			return;
+			return messages;
 		}
 		if (quantityInp <= 0) {
 			messages.add("Enter a valid quantity.");
 			printer.print(messages, command);
-			return;
+			return messages;
 		}
 
-		Product product = databaseService.getProductsByName(prod);
+		Product product = databaseService.getProductsByName(name);
 
 		if (!(product == null)) {
 			if (product.getQuantity() == product.getMaxQuantity()) {
 				messages.add("The quantity is already full.");
 				printer.print(messages, command);
-				return;
+				return messages;
 			}
 
-			long q = databaseService.replenishQuantity(prod, quantityInp);
+			long q = databaseService.replenishQuantity(name, quantityInp);
 
 			if (q > product.getMaxQuantity()) {
 				messages.add("The given quantity is bigger than the maximum quantity.");
 				printer.print(messages, command);
-				return;
+				return messages;
 			}
 			messages.add("Quantity successfully added.");
 			printer.print(messages, command);
-			return;
+			return messages;
 		}
 
-		messages.add("No product named ' " + prod + " ' was found.");
+		messages.add("No product named ' " + name + " ' was found.");
 		printer.print(messages, command);
-		return;
+		return messages;
 
 	}
-	///////////////////////////////////////////////////////////////////////////
-
-	/*
-	 * public void createCategoriesList() throws Exception {
-	 * 
-	 * HashSet<String> arrCategories = new HashSet<>(); List<String> list =
-	 * databaseService.getProductsByCategory(); for (String category : list) {
-	 * arrCategories.add(category); }
-	 * 
-	 * System.out.println(arrCategories); }
-	 */
-
-	////////////////////////////
 
 	// comanda 7
-	public void addCategory(String newCategory, String[] command) throws Exception {
+	public List<String> addCategory(String newCategory) throws Exception {
+		String[] command = null;
 		ArrayList<String> messages = new ArrayList<>();
 		HashSet<String> arrCategories = new HashSet<>();
 
@@ -323,95 +318,98 @@ public class CommandProcessingService implements CommandProcessingServiceInterfa
 
 			messages.add("Category added. ");
 			printer.print(messages, command);
-			return;
+			return messages;
 		} else {
 			messages.add("Category already exists.");
 			printer.print(messages, command);
-			return;
+			return messages;
 
 		}
 	}
 
 	// comanda 8
-	public void addProduct(String prod, String categoryIn, String quantityIn, String priceIn, String[] command)
-			throws Exception {
+	public List<String> addProduct(String name, String category, String quantity, String price) throws Exception {
+		String[] command = null;
 		ArrayList<String> messages = new ArrayList<>();
 
 		HashSet<String> arrCategories = new HashSet<>();
 		List<String> list = databaseService.getCategoriesName();
 
-		for (String category : list) {
-			arrCategories.add(category);
+		for (String categoryItem : list) {
+			arrCategories.add(categoryItem);
 		}
 
 		int quantityInp;
 		int priceInp;
 		try {
-			quantityInp = Integer.parseInt(quantityIn);
-			priceInp = Integer.parseInt(priceIn);
+			quantityInp = Integer.parseInt(quantity);
+			priceInp = Integer.parseInt(price);
 
 		} catch (NumberFormatException nfe) {
 			messages.add("Error ! The number must be integer.");
 			printer.print(messages, command);
-			return;
+			return messages;
 		}
 
 		if (!(quantityInp > 0 && priceInp > 0)) {
 			messages.add("Quantity and price must be positive.");
 			printer.print(messages, command);
-			return;
+			return messages;
 		}
 		Category id = null;
-		Product product = databaseService.getProductsByName(prod);
+		Product product = databaseService.getProductsByName(name);
 
-		// System.out.println(product);
 		if (product == null) {
 
-			if (!arrCategories.contains(categoryIn)) {
+			if (!arrCategories.contains(category)) {
 				messages.add("The category does not exists.");
 				printer.print(messages, command);
-				return;
+				return messages;
 
 			} else {
 
-				databaseService.addProducts(id, prod, categoryIn, quantityIn, priceIn);
-				messages.add(quantityIn + " " + prod + " " + "have been added to " + categoryIn + " " + "category.");
+				databaseService.addProducts(id, name, category, quantity, price);
+				messages.add(quantity + " " + name + " " + "have been added to " + category + " " + "category.");
 				printer.print(messages, command);
-				return;
+				return messages;
 			}
 		}
 		messages.add("The product already exists.");
 		printer.print(messages, command);
-		return;
+		return messages;
 
 	}
 
 	// comanda 9
-	public void removeProduct(String prodName, String[] command) throws NumberFormatException, Exception {
+	public List<String> removeProduct(String name) throws NumberFormatException, Exception {
+		String[] command = null;
 		ArrayList<String> messages = new ArrayList<>();
 
-		Product product = databaseService.getProductsByName(prodName);
+		Product product = databaseService.getProductsByName(name);
 
 		if (!(product == null)) {
 			if (!(product.getQuantity() == 0)) {
 				messages.add("Cannot remove " + product.getName() + " " + "because quantity is not zero. Quantity is "
 						+ product.getQuantity());
 				printer.print(messages, command);
-				return;
+				return messages;
 			} else {
-				databaseService.remove(prodName);
+				databaseService.remove(name);
 				messages.add("Product removed.");
 				printer.print(messages, command);
-				return;
+				return messages;
 			}
 		}
-		messages.add("No product named ' " + prodName + " ' was found.");
+		messages.add("No product named ' " + name + " ' was found.");
 		printer.print(messages, command);
+
+		return messages;
 
 	}
 
 	// bonus 1
-	public void help(String[] command) {
+	public List<String> help() {
+		String[] command = null;
 		ArrayList<String> messages = new ArrayList<>();
 		messages.add(
 				"PRINT PRODUCTS CATEGORY ${CATEGORY_NAME} - Show information about products form a given category");
@@ -428,292 +426,31 @@ public class CommandProcessingService implements CommandProcessingServiceInterfa
 
 		printer.print(messages, command);
 
+		return messages;
+
+	}
+
+	// comanda 11
+	private void switchDisplayMode(String newDisplayMode, String newPath) {
+		String[] command = null;
+		ArrayList<String> messages = new ArrayList<>();
+		printer.print(messages, command);
+		printer.setDisplayMode(newDisplayMode);
+		if (newPath != null) {
+			printer.setPath(newPath.replace("\"", ""));
+			return;
+		}
+		printer.setPath(null);
+	}
+
+	// comanda 10
+	private void printDisplayMode() {
+		String[] command = null;
+		ArrayList<String> messages = new ArrayList<>();
+		messages.add(printer.getDisplayMode());
+		printer.print(messages, command);
+
 	}
 }
 
-/*
- * 
- * 
- * 
- * 
- * 
- * 
- * public void setProducts(JSONArray products) { for (int i = 0; i <
- * products.size(); i++) { productsArr.add(new Product((JSONObject)
- * products.get(i)));
- * 
- * } }
- * 
- * public void setUsers(JSONArray users) { for (int i = 0; i < users.size();
- * i++) { usersArr.add(new User((JSONObject) users.get(i)));
- * 
- * }
- * 
- * }
- * 
- * 
- * 
- * 
- * 
- * // bonus 3 private void export(String newJSON) { messages = new ArrayList();
- * messages.add(" "); printer.print(messages, command);
- * 
- * JSONObject newObj = new JSONObject(); JSONArray arrayPr = new JSONArray();
- * JSONArray arrayUs = new JSONArray();
- * 
- * for (Product product : productsArr) { arrayPr.add(product.getJSONObject()); }
- * 
- * for (User user : usersArr) { arrayUs.add(user.getJSONObject()); }
- * 
- * newObj.put("stock", arrayPr); newObj.put("clients", arrayUs);
- * 
- * try (FileWriter file = new FileWriter(newJSON.replace("\"", ""))) {
- * file.write(newObj.toJSONString()); file.flush();
- * 
- * } catch (IOException e) { e.printStackTrace(); }
- * 
- * }
- * 
- * // bonus 1 private void help() { messages = new ArrayList(); messages.add(
- * "PRINT PRODUCTS CATEGORY ${CATEGORY_NAME} - Show information about products form a given category"
- * ); messages.add("PRINT PRODUCTS ALL - Show information about all products");
- * messages.
- * add("PRINT PRODUCTS ${PRODUCTS_NAME} - Show information about specific product"
- * ); messages.add("PRINT CATEGORIES - Show all categories of products");
- * messages.
- * add("BUY ${PRODUCT} ${QUANTITY} FOR ${USERNAME} - Buy an amount of a specific product for given user"
- * ); messages.
- * add("REPLENISH ${PRODUCT} ${QUANTITY} - Replenish the stock of given product with given amount"
- * ); messages.add("ADD NEW CATEGORY ${NAME} - Add a new category of products");
- * messages.
- * add("ADD NEW PRODUCT ${NAME} ${CATEGORY} ${QUANTITY} ${PRICE} - Add new product to the stock"
- * ); messages.
- * add("REMOVE PRODUCT ${NAME} - Remove specific product from the stock if its quantity is empty"
- * ); messages.add("PRINT DISPLAY_MODE - Print the current display mode");
- * messages.
- * add("SWITCH DISPLAY_MODE CONSOLE sau FILE ${CALE_CATRE_FISIER} - Change the display mode"
- * );
- * 
- * printer.print(messages, command);
- * 
- * }
- * 
- * // comanda 11 private void switchDisplayMode(String newDisplayMode, String
- * newPath) { messages = new ArrayList(); printer.print(messages, command);
- * printer.setDisplayMode(newDisplayMode); if (newPath != null) {
- * printer.setPath(newPath.replace("\"", "")); return; } printer.setPath(null);
- * }
- * 
- * // comanda 10 private void printDisplayMode() { messages = new ArrayList();
- * messages.add(printer.getDisplayMode()); printer.print(messages, command);
- * 
- * }
- * 
- * // comanda 9 public void removeProduct(String prodName) { messages = new
- * ArrayList(); for (Iterator<Product> iterator = productsArr.iterator();
- * iterator.hasNext();) { Product product = iterator.next(); if (((Product)
- * product).getName().equals(prodName)) { if (!(((Product)
- * product).getQuantity() == 0)) { messages.add("Cannot remove " + ((Product)
- * product).getName() + " " + "because quantity is not zero. Quantity is " +
- * ((Product) product).getQuantity()); printer.print(messages, command); return;
- * } else { iterator.remove(); messages.add("Product removed.");
- * printer.print(messages, command); return; } } }
- * 
- * messages.add("No product named ' " + prodName + " ' was found.");
- * printer.print(messages, command); }
- * 
- * // comanda 8 private void addProduct(String prodName, String categoryIn,
- * String quantityIn, String priceIn) { messages = new ArrayList(); for (Product
- * product : productsArr) { int quantityInp; int priceInp; try { quantityInp =
- * Integer.parseInt(quantityIn); priceInp = Integer.parseInt(priceIn);
- * 
- * } catch (NumberFormatException nfe) {
- * messages.add("Error ! The number must be integer."); printer.print(messages,
- * command); return; }
- * 
- * if (!(quantityInp > 0 && priceInp > 0)) {
- * messages.add("Quantity and price must be positive."); printer.print(messages,
- * command); return; }
- * 
- * if (product.getName().equals(prodName)) {
- * messages.add("The product already exists."); printer.print(messages,
- * command); return; } if (!arrCategories.contains(categoryIn)) {
- * messages.add("The category does not exists."); printer.print(messages,
- * command); return;
- * 
- * }
- * 
- * }
- * 
- * Product newProduct = new Product(); newProduct.setName(prodName);
- * newProduct.setCategory(categoryIn);
- * newProduct.setQuantity(Integer.parseInt(quantityIn));
- * newProduct.setPrice(Integer.parseInt(priceIn)); productsArr.add(newProduct);
- * 
- * messages.add(quantityIn + " " + prodName + " " + "have been added to " +
- * categoryIn + " " + "category."); printer.print(messages, command);
- * 
- * }
- * 
- * public void createCategoriesList() { for (Product product : productsArr) {
- * arrCategories.add((String) product.getCategory()); }
- * 
- * }
- * 
- * // comanda 7 private void addCategory(String newCategory) { messages = new
- * ArrayList(); if (arrCategories.add(newCategory)) {
- * messages.add("Category added."); printer.print(messages, command); } else {
- * messages.add("Category already exists."); printer.print(messages, command);
- * 
- * }
- * 
- * }
- * 
- * // comanda 6 private void replenish(String prod, String quantityRe) {
- * messages = new ArrayList(); for (Product product : productsArr) { int
- * quantityInp; try { quantityInp = Integer.parseInt(quantityRe); } catch
- * (NumberFormatException nfe) {
- * messages.add("Error ! The second argument must be integer.");
- * printer.print(messages, command); return; } if (quantityInp <= 0) {
- * messages.add("Enter a valid quantity."); printer.print(messages, command);
- * return; } if (product.getName().equals(prod)) { long newQuantity =
- * product.getQuantity() + quantityInp; if (product.getQuantity() ==
- * (product.getMaxQuantity())) { messages.add("The quantity is already full.");
- * printer.print(messages, command); return;
- * 
- * } if (newQuantity > product.getMaxQuantity()) {
- * messages.add("The given quantity is bigger than the maximum quantity.");
- * printer.print(messages, command); return; }
- * 
- * product.setQuantity(newQuantity);
- * 
- * messages.add("Quantity successfully added."); printer.print(messages,
- * command); return; }
- * 
- * }
- * 
- * messages.add("No product named ' " + prod + " ' was found.");
- * printer.print(messages, command);
- * 
- * }
- * 
- * // comanda 5 private void buy(String prod, String quantityIn, String
- * username) { messages = new ArrayList(); for (Product product : productsArr) {
- * if (product.getName().equals(prod)) { for (User user : usersArr) { if
- * (!(Integer.parseInt(quantityIn) > 0)) {
- * messages.add("Quantity must be positive."); printer.print(messages, command);
- * return; } else { if (user.getUsername().equals(username)) { int quantityInp;
- * try { quantityInp = Integer.parseInt(quantityIn); } catch
- * (NumberFormatException nfe) {
- * messages.add("Error ! The number must be integer."); printer.print(messages,
- * command); return; } long totalPrice = product.getPrice() * quantityInp;
- * 
- * if (product.getQuantity() == 0) { messages.add("The product " +
- * product.getName() + " is no longer in stock."); printer.print(messages,
- * command); return; } if (!(user.getBalance() > totalPrice)) {
- * messages.add("Your balance is too low."); printer.print(messages, command);
- * return; } if (product.getQuantity() < quantityInp) { messages.add("User " +
- * user.getUsername() + " cannot buy " + quantityIn + " " + product.getName() +
- * " because there is only " + product.getQuantity() + " " + product.getName() +
- * " left. "); printer.print(messages, command); return; }
- * 
- * long newQuantity = product.getQuantity() - quantityInp; long newBalance =
- * user.getBalance() - totalPrice;
- * 
- * product.setQuantity(newQuantity); user.setBalance(newBalance);
- * 
- * messages.add("User " + user.getUsername() + " has bought " + quantityIn + " "
- * + product.getName()); printer.print(messages, command); return; } } }
- * messages.add("Client not found."); printer.print(messages, command); return;
- * } } messages.add("Product not found."); printer.print(messages, command); }
- * 
- * // comanda 4 private void printCategories() { messages = new ArrayList();
- * HashSet<Object> list = new HashSet<>(); for (Product product : productsArr) {
- * list.add(product.getCategory());
- * 
- * } Iterator it = list.iterator(); String s = ""; while (it.hasNext()) { s = s
- * + it.next(); if (it.hasNext()) { s = s + ","; }
- * 
- * }
- * 
- * messages.add(s);
- * 
- * if (messages.isEmpty()) { messages.add("Categories don't exist. "); }
- * printer.print(messages, command);
- * 
- * }
- * 
- * // comanda 3 private void productsName(String nameIn) { messages = new
- * ArrayList(); for (Product product : productsArr) { if
- * (product.getName().equals(nameIn)) { messages.add(product.getName() + " " +
- * product.getQuantity() + " " + product.getPrice()); } }
- * 
- * if (messages.isEmpty()) { messages.add("No product named ' " + nameIn +
- * " ' was found."); } printer.print(messages, command); }
- * 
- * // comanda 2 private void printAll() { int j = 1; messages = new ArrayList();
- * for (Product product : productsArr) { messages.add(j + " " +
- * product.getName() + " " + product.getQuantity() + " " + product.getCategory()
- * + " " + product.getPrice()); j++; } printer.print(messages, command); }
- * 
- * // comanda 1 private void printCategory(String categoryIn) { int j = 1;
- * messages = new ArrayList(); for (Product product : productsArr) { if
- * (product.getCategory().equals(categoryIn)) { messages.add(j + " " +
- * product.getName() + " " + product.getQuantity() + " " + product.getPrice());
- * j++; } }
- * 
- * if (messages.isEmpty()) { messages.add("No category named ' " + categoryIn +
- * " ' was found."); } printer.print(messages, command); } }
- */
 
-// comanda 1
-/*
- * private void printCategory(String categoryIn) throws SQLException { int j =
- * 1; messages = new ArrayList(); String query =
- * "SELECT *FROM product INNER JOIN categories ON product.CategoryID=categories.CategoryID"
- * ;
- * 
- * db.conn = DriverManager.getConnection(url, usernameDB, password);
- * db.statement = db.conn.createStatement(); db.result =
- * db.statement.executeQuery(query);
- * 
- * while (db.result.next()) { if
- * (db.result.getString("category").equals(categoryIn)) { messages.add(j + " " +
- * db.result.getString("name") + " " + db.result.getString("quantity") + " " +
- * db.result.getString("price"));
- * 
- * j++; }
- * 
- * }
- * 
- * if (messages.isEmpty()) { messages.add("No category named ' " + categoryIn +
- * " ' was found."); } printer.print(messages, command); }
- * 
- * 
- */
-
-// comanda 1
-/*
- * private void printCategory(String categoryIn) throws SQLException { int j =
- * 1; messages = new ArrayList<>(); // String query = String.format( // "SELECT
- * *FROM product INNER JOIN categories ON //
- * product.CategoryID=categories.CategoryID WHERE categories.category='%s'", //
- * categoryIn);
- * 
- * // String query = "SELECT *FROM product INNER JOIN categories ON //
- * product.CategoryID=categories.CategoryID";
- * 
- * db.
- * createConnection("SELECT *FROM product INNER JOIN categories ON product.CategoryID=categories.CategoryID"
- * ); // db.setResult(db.getStatement().executeQuery(query)); //
- * db.executeQuery();
- * 
- * while (db.getResult().next()) { if
- * (db.getResult().getString("category").equals(categoryIn)) { messages.add(j +
- * " " + db.getResult().getString("namePr") + " " +
- * db.getResult().getString("quantity") + " " +
- * db.getResult().getString("price"));
- * 
- * j++; } } if (messages.isEmpty()) { messages.add("No category named ' " +
- * categoryIn + " ' was found."); } printer.print(messages, command); }
- */

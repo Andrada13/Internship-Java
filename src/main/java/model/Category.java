@@ -13,15 +13,14 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "categories")
+@Table(name = "category")
 public class Category {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "CategoryID")
-	private Integer categoryID;
-	@Column(name = "category")
-	private String categoryPr;
+	@Column(name = "category_id")
+	private Integer id;
+	private String name;
 
 	@OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
 	private List<Product> products = new ArrayList<>();
@@ -30,31 +29,27 @@ public class Category {
 
 	}
 
-	public Category(Integer categoryID, String categoryPr, List<Product> products) {
+	public Category(Integer id, String name, List<Product> products) {
 		super();
-		this.categoryID = categoryID;
-		this.categoryPr = categoryPr;
+		this.id = id;
+		this.name = name;
 		this.products = products;
 	}
 
-	public String getCategoryPr() {
-		return categoryPr;
+	public String getName() {
+		return name;
 	}
 
-	public void setCategoryPr(String categoryPr) {
-		this.categoryPr = categoryPr;
+	public void setName(String name) {
+		this.name = name;
 	}
 
-	public void setCategoryID(Integer categoryID) {
-		this.categoryID = categoryID;
+	public Integer getId() {
+		return id;
 	}
 
-	public int getCategoryID() {
-		return categoryID;
-	}
-
-	public void setCategoryID(int categoryID) {
-		this.categoryID = categoryID;
+	public void setId(Integer id) {
+		this.id = id;
 	}
 
 	public List<Product> getProducts() {
@@ -65,17 +60,9 @@ public class Category {
 		this.products = products;
 	}
 
-	public String getCategory() {
-		return categoryPr;
-	}
-
-	public void setCategory(String category) {
-		this.categoryPr = category;
-	}
-
 	@Override
 	public String toString() {
-		return categoryPr;
+		return name;
 	}
 
 }
